@@ -1,0 +1,11 @@
+@import 'buttons.css';
+@import 'components.css';
+@import 'typography.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none;
+}

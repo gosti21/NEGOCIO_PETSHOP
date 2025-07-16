@@ -1,0 +1,7 @@
+.card{
+    @apply block p-6 border rounded-lg shadow-sm;
+}
+
+.card-color{
+    @apply bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700;
+}
