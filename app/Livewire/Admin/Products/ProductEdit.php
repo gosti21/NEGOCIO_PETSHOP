@@ -25,7 +25,6 @@ class ProductEdit extends Component
 
     public $family_id = '';
     public $category_id = '';
-    public $sub_category_id = '';
     public $name = '';
     public $description = '';
 
@@ -35,9 +34,8 @@ class ProductEdit extends Component
     {
         $this->families = Family::all();
 
-        $this->family_id = $data->subCategory->category->family_id;
-        $this->category_id = $data->subCategory->category_id;
-        $this->sub_category_id = $data->sub_category_id;
+        $this->family_id = $data->category->family_id;
+        $this->category_id = $data->category_id;
         $this->name = $data->name;
         $this->description = $data->description;
     }
@@ -58,12 +56,11 @@ class ProductEdit extends Component
     public function updatedFamilyId()
     {
         $this->reset('category_id');
-        $this->reset('sub_category_id');
     }
 
     public function updatedCategoryId()
     {
-        $this->reset('sub_category_id');
+        //
     }
 
     #[Computed()]
@@ -72,37 +69,30 @@ class ProductEdit extends Component
         return Category::where('family_id', $this->family_id)->get();
     }
 
-    #[Computed()]
-    public function subcategories()
-    {
-        return SubCategory::where('category_id', $this->category_id)->get();
-    }
 
     public function save()
     {
         $this->validateData();
 
-        if($this->data->name !== $this->name || $this->data->sub_category_id !== $this->sub_category_id)
-        {
-            $sku = $this->generateSku($this->sub_category_id, $this->name);
+        if ($this->data->name !== $this->name || $this->data->category_id !== $this->category_id) {
+            $sku = $this->generateSku($this->category_id, $this->name);
             $skuvariant = $this->generateSkuVariant($this->name);
 
             $variant = Product::findOrFail($this->data->id);
             $variant->variants()->update([
                 'sku' => $skuvariant
             ]);
-
-        }else{
+        } else {
             $sku = $this->data->sku;
         }
 
         $product = Product::findOrFail($this->data->id);
-        
+
         $product->update([
             'name' => $this->name,
             'sku' => $sku,
             'description' => $this->description,
-            'sub_category_id' => $this->sub_category_id,
+            'category_id' => $this->category_id,
         ]);
 
         $this->dispatch('subcategoryUpdated', $this->name);
@@ -119,13 +109,12 @@ class ProductEdit extends Component
             [
                 'family_id' => 'required|exists:families,id',
                 'category_id' => 'required|exists:categories,id',
-                'sub_category_id' => 'required|exists:sub_categories,id',
                 'name' => [
                     'required',
                     'string',
                     'between:3,80',
                     Rule::unique('products', 'name')
-                        ->where(fn(Builder $query) => $query->where('sub_category_id', $this->sub_category_id))
+                        ->where(fn(Builder $query) => $query->where('category_id', $this->category_id)) // <-- Usa category_id en vez de sub_category_id
                         ->ignore($this->data->id)
                 ],
                 'description' => 'required|string',
@@ -136,7 +125,6 @@ class ProductEdit extends Component
             ],
             [
                 'category_id' => 'categoría',
-                'sub_category_id' => 'subcategoría',
             ]
         );
     }

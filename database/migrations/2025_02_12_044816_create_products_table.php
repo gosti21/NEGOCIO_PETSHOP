@@ -14,15 +14,14 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
 
-            $table->string('sku', length: 10)->unique();
-            $table->string('name', length: 80);
+            $table->string('sku', 10)->unique();
+            $table->string('name', 80);
             $table->text('description')->nullable();
-            /* $table->decimal('price', total:8 , places:2);
-            $table->integer('stock')->unsigned()->default(0); */
 
-            $table->foreignId('sub_category_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete(); // Solo category_id
 
-            $table->unique(['name', 'sub_category_id']);
+            // Si quieres asegurarte que no se repitan nombres en una categoría:
+            $table->unique(['name', 'category_id']);
 
             $table->timestamps();
         });

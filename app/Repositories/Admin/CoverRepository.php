@@ -9,6 +9,7 @@ use App\Traits\Admin\sweetAlerts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class CoverRepository extends BaseRepository
 {
@@ -23,6 +24,8 @@ class CoverRepository extends BaseRepository
     public function index()
     {
         $covers = Cover::with('images')->orderby('order')->get();
+        $jsonTxt = json_encode($covers);
+        Log::info('XXXX'.$jsonTxt.'xxxxxx');
         return $covers;
     }
 
@@ -37,8 +40,8 @@ class CoverRepository extends BaseRepository
                 'start_at' => $request->start_at,
                 'end_at' => $request->end_at
             ]);
-
             $img = Storage::put('covers', $request->image);
+            Log::info('XXXXXXXXXXXX'.$img .'XXXXXXXXXXXXXXX');
 
             $cover->images()->create([
                 'path' => $img

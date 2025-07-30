@@ -30,7 +30,7 @@ class Navigation extends Component
         }
 
         return Category::where('family_id', $this->family_id)
-            ->with('subCategories')
+            //->with('subCategories')
             ->get();
     }
 

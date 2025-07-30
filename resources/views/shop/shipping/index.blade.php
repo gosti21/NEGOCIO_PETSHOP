@@ -65,7 +65,7 @@
                     </div>
                 </div>
 
-                <a href="#" class="btn btn-blue w-full block text-center {{ count(Auth::user()->addresses) ? '' : 'cursor-not-allowed opacity-50' }}" id="nextButton">
+                <a href="{{ route('checkout.index') }}" class="btn btn-blue w-full block text-center {{ count(Auth::user()->addresses) ? '' : 'cursor-not-allowed opacity-50' }}" id="nextButton">
                     Siguiente
                 </a>
             </div>

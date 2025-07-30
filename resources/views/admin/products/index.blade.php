@@ -15,9 +15,9 @@
     <th scope="col" class="px-6 py-3">
         Nombre
     </th>
-    <th scope="col" class="px-6 py-3">
+{{--    <th scope="col" class="px-6 py-3">
         SubCategoría
-    </th>
+    </th>--}}
     <th scope="col" class="px-6 py-3">
         Acciones
     </th>
@@ -35,9 +35,9 @@
             <td class="px-6 py-4">
                 {{ $product->name }}
             </td>
-            <td class="px-6 py-4">
+{{--            <td class="px-6 py-4">
                 {{ $product->subCategory->name }}
-            </td>
+            </td>--}}
             @include('admin.partials.tabla-acctions2', ['item' => $product, 'showRoute' => 'admin.products.show', 'editRoute' => 'admin.products.edit', 'deleteRoute' => 'admin.products.destroy'])
         </tr>
     @endforeach

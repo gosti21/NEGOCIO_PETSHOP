@@ -13,6 +13,6 @@ class Family extends Model
 
     public function categories(): HasMany
     {
-        return $this->hasMany(Category::class)->chaperone();
+        return $this->hasMany(Category::class);
     }
 }

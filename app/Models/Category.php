@@ -18,8 +18,5 @@ class Category extends Model
         return $this->belongsTo(Family::class);
     }
 
-    public function subCategories(): HasMany
-    {
-        return $this->hasMany(SubCategory::class)->chaperone();
-    }
+
 }

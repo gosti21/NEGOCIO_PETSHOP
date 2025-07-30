@@ -37,19 +37,19 @@ class Option extends Model
      */
     public function scopeVerifyCategory($query, $category_id)
     {
-        $query->when($category_id, function ($query, $category_id) {
-            $query->whereHas('products.subCategory', function ($query) use ($category_id) {
-                $query->where('category_id', $category_id);
-            })
-            ->with([
-                'features' => function ($query) use ($category_id) {
-                    $query->whereHas('variants.product.subCategory', function ($query) use ($category_id) {
-                        $query->where('category_id', $category_id);
-                    });
-                }
-            ]);
-        });
-    }
+    $query->when($category_id, function ($query, $category_id) {
+        $query->whereHas('products', function ($query) use ($category_id) {
+            $query->where('category_id', $category_id);
+        })
+        ->with([
+            'features' => function ($query) use ($category_id) {
+                $query->whereHas('variants.product', function ($query) use ($category_id) {
+                    $query->where('category_id', $category_id);
+                });
+            }
+        ]);
+    });
+}
 
     /**
      * Verificar si esta presente la subcategoria, para traer todos los features relacionadas a esta
@@ -73,7 +73,7 @@ class Option extends Model
     // RelationShips
     public function features(): HasMany
     {
-        return $this->hasMany(Feature::class)->chaperone();
+        return $this->hasMany(Feature::class);
     }
 
     public function products(): BelongsToMany

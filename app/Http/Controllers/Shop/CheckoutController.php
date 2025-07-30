@@ -65,8 +65,9 @@ class CheckoutController extends Controller implements HasMiddleware
             ]
         ])
             ->json();
+//dd($response);
 
-        return $response['sessionKey'];
+       // return $response['sessionKey'];
     }
 
     public function paid(Request $request)
@@ -127,3 +128,5 @@ class CheckoutController extends Controller implements HasMiddleware
         return redirect()->route('checkout.index');
     }
 }
+
+

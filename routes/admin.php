@@ -23,7 +23,7 @@ Route::get('/options', [OptionController::class, 'index'])->name('options.index'
 
 Route::resource('families', FamilyController::class);
 Route::resource('categories', CategoryController::class);
-Route::resource('subcategories', SubCategoryController::class);
+//Route::resource('subcategories', SubCategoryController::class);
 Route::resource('products', ProductController::class);
 
 Route::get('/products/{product}/variants', [VariantController::class, 'create'])

@@ -4,16 +4,15 @@
             @include('shop.partials.breadcrumb', [
                 'breadcrumbs' => [
                     [
-                        'name' => $product->subcategory->category->family->name,
-                        'route' => route('families.show', $product->subcategory->category->family)
+                        'name' => $product->category->family->name,
+                        'route' => route('families.show', $product->category->family)
                     ],
                     [
-                        'name' => $product->subcategory->category->name,
-                        'route' => route('categories.show', $product->subcategory->category)
+                        'name' => $product->category->name,
+                        'route' => route('categories.show', $product->category)
                     ],
                     [
-                        'name' => $product->subcategory->name,
-                        'route' => route('subcategories.show', $product->subcategory)
+                        'name' => $product->name
                     ]
                 ]
             ])
@@ -21,5 +20,4 @@
     </x-container>
 
     @livewire('shop.products.add-to-cart', ['product' => $product])
-    
 </x-app-layout>

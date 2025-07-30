@@ -1,4 +1,4 @@
-@extends('admin.templates.index')
+{{--@extends('admin.templates.index')
 @php
     $breadcrumName = 'SubCategorías';
     $route = 'admin.subcategories.create';

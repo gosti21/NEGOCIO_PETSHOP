@@ -26,9 +26,9 @@
                             class="w-full aspect-[3/1] object-cover object-center" alt="img-default-cover">
                     @endif
                 </div>
+
             @endforeach
         </div>
-
         <!-- If we need pagination -->
         <div class="swiper-pagination"></div>
 
@@ -45,7 +45,8 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mx-6 sm:mx-0 md:mx-0 lg:mx-0">
             @foreach ($lastProducts as $product)
                 @if (count($product->variants))
-                    <article class="bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700 shadow rounded overflow-hidden relative group">
+                    <article
+                        class="bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700 shadow rounded overflow-hidden relative group">
                         <a href="{{ route('products.show', $product) }}">
                             @php
                                 $variant = $product->variants->first();
@@ -53,17 +54,17 @@
                             @endphp
 
                             @if ($image)
-                                <img src="{{ Storage::url($image->path) }}"
-                                    alt="img-product-{{ $product->name }}"
+                                <img src="{{ Storage::url($image->path) }}" alt="img-product-{{ $product->name }}"
                                     class="w-full h-48 object-cover object-center">
                             @else
-                                <img src="{{ asset('images/default-product.jpg') }}"
-                                    alt="img-default"
+                                <img src="{{ asset('images/default-product.jpg') }}" alt="img-default"
                                     class="w-full h-48 object-cover object-center">
                             @endif
 
+
                             <div class="p-4">
-                                <h1 class="text-lg font-bold text-gray-900 dark:text-white mb-1 line-clamp-2 min-h-[56px]">
+                                <h1
+                                    class="text-lg font-bold text-gray-900 dark:text-white mb-1 line-clamp-2 min-h-[56px]">
                                     {{ $product->name }}
                                 </h1>
 
@@ -71,7 +72,8 @@
                                     S/. {{ number_format($variant?->price ?? 0, 2) }}
                                 </p>
 
-                                <span class="btn btn-blue block w-full text-center opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300">
+                                <span
+                                    class="btn btn-blue block w-full text-center opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-300">
                                     Ver producto
                                 </span>
                             </div>

@@ -18,7 +18,7 @@
                     data-id="{{$cover->id}}">
 
                     <img src="{{ Storage::url($cover->images->first()->path) }}" alt="portada-{{$cover->title}}" class="w-full lg:w-64 aspect-[3/1] object-cover object-center">
-                    
+
                     <div class="p-4 lg:flex-1 lg:flex lg:justify-between lg:items-center space-y-3 lg:space-y-0">
                         <div class="font-semibold">
                             <h1>

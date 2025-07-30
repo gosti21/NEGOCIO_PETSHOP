@@ -5,13 +5,13 @@
             'icon' => 'fa-solid fa-chart-line',
             'route' => route('admin.dashboard'),
             'active' => request()->routeIs('admin.dashboard')
-        ], 
+        ],
         [
             'name' => 'Usuarios',
             'icon' => 'fa-solid fa-users',
             'route' => route('admin.users.index'),
             'active' => request()->routeIs('admin.users.*')
-        ], 
+        ],
         [
             'header' => 'Administrar página'
         ],
@@ -20,60 +20,60 @@
             'icon' => 'fa-solid fa-gear',
             'route' => route('admin.options.index'),
             'active' => request()->routeIs('admin.options.*')
-        ], 
+        ],
         [
             //Familia de productos
             'name' => 'Familias',
             'icon' => 'fa-solid fa-layer-group',
             'route' => route('admin.families.index'),
             'active' => request()->routeIs('admin.families.*')
-        ], 
+        ],
         [
             'name' => 'Categorías',
             'icon' => 'fa-solid fa-tags',
             'route' => route('admin.categories.index'),
             'active' => request()->routeIs('admin.categories.*')
-        ], 
-        [
-            'name' => 'SubCategorías',
-            'icon' => 'fa-solid fa-list',
-            'route' => route('admin.subcategories.index'),
-            'active' => request()->routeIs('admin.subcategories.*')
-        ], 
+        ],
+//        [
+//            'name' => 'SubCategorías',
+//            'icon' => 'fa-solid fa-list',
+//            'route' => route('admin.subcategories.index'),
+//            'active' => request()->routeIs('admin.subcategories.*')
+//        ],
         [
             'name' => 'Productos',
             'icon' => 'fa-solid fa-boxes-stacked',
             'route' => route('admin.products.index'),
             'active' => request()->routeIs('admin.products.*')
-        ], 
+        ],
         [
             'name' => 'Portadas',
             'icon' => 'fa-solid fa-images',
             'route' => route('admin.covers.index'),
             'active' => request()->routeIs('admin.covers.*')
-        ], 
+        ],
         [
-            'header' => 'Ordenes y envío' 
+            'header' => 'Ordenes y envío'
         ],
         [
             'name' => 'Couriers',
             'icon' => 'fa-solid fa-cart-flatbed',
             'route' => route('admin.shipping-companies.index'),
             'active' => request()->routeIs('admin.shipping-companies.*')
-        ], 
+        ],
         [
             'name' => 'Órdenes',
             'icon' => 'fa-solid fa-cart-shopping',
             'route' => route('admin.orders.index'),
             'active' => request()->routeIs('admin.orders.*')
-        ], 
+        ],
         [
             'name' => 'Envios',
             'icon' => 'fa-solid fa-truck-fast',
             'route' => route('admin.shipments.index'),
             'active' => request()->routeIs('admin.shipments.*')
-        ], 
-    ];   
+        ],
+    ];
 @endphp
 
 <aside id="logo-sidebar"
@@ -93,7 +93,7 @@
                         </div>
                     @else
                         @php
-                            $activeClass = $link['active'] ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white' : '';   
+                            $activeClass = $link['active'] ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white' : '';
                         @endphp
                         <a href="{{$link['route']}}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {{ $activeClass }}">

@@ -46,5 +46,11 @@ return [
         'password' => env('NIUBIZ_PASSWORD'),
         'url_api' => env('NIUBIZ_URL_API'),
         'url_js' => env('NIUBIZ_URL_JS'),
-    ]
+    ],
+
+    'mercadopago' => [
+        'access_token' => env('MERCADOPAGO_ACCESS_TOKEN'),
+        'public_key' => env('MERCADOPAGO_PUBLIC_KEY'),
+    ],
+
 ];

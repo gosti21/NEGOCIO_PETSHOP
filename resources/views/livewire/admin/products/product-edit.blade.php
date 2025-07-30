@@ -1,6 +1,6 @@
 <div class="card card-color">
     <form>
-        
+
         <x-validation-errors class="mb-4" />
 
         <div class="mb-4">
@@ -17,7 +17,7 @@
                 @endforeach
             </x-select>
         </div>
-        
+
         <div class="mb-4">
             <x-label class="mb-2">
                 Categorías
@@ -32,12 +32,12 @@
                 @endforeach
             </x-select>
         </div>
-        
-        <div class="mb-4">
+
+        {{--<div class="mb-4">
             <x-label class="mb-2">
                 SubCategorías
             </x-label>
-            
+
             <x-select wire:model.live="sub_category_id" wire:key="subcategory-select-{{ $family_id }}-{{ $category_id }}-{{ $sub_category_id }}" class="w-full">
                 <option disabled value="">Selecciona una subcategoría </option>
                 @foreach ($this->subcategories as $subcategory)
@@ -46,15 +46,15 @@
                     </option>
                 @endforeach
             </x-select>
-        </div>
-    
+        </div>--}}
+
         <div class="mb-4">
             <x-label class="mb-2">
                 Nombre
             </x-label>
             <x-input class="w-full" placeholder="Ingrese el nombre del producto" wire:model="name" wire:key="name"/>
         </div>
-    
+
         <div class="mb-4">
             <x-label class="mb-2">
                 Descripción

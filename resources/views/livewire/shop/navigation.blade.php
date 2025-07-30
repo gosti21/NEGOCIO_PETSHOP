@@ -162,7 +162,7 @@
                                     {{$category->name}}
                                 </a>
 
-                                <ul class="mt-4 space-y-2">
+                                {{--<ul class="mt-4 space-y-2">
                                     @foreach ($category->subCategories as $subCategory)
                                         <li>
                                             <a href="{{ route('subcategories.show', $subCategory) }}" class="text-sm text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-[#E39F00]">
@@ -170,7 +170,7 @@
                                             </a>
                                         </li>
                                     @endforeach
-                                </ul>
+                                </ul>--}}
                             </li>
                         @endforeach
                     </ul>

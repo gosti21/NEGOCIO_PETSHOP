@@ -1,4 +1,4 @@
-<x-app-layout>
+{{--<x-app-layout>
     <x-container class="px-4 my-4">
         <div>
             @include('shop.partials.breadcrumb', [

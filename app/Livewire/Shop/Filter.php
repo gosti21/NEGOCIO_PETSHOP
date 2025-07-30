@@ -24,9 +24,10 @@ class Filter extends Component
     public function mount()
     {
         $this->options = Option::verifyFamily($this->family_id)
-        ->verifyCategory($this->category_id)
-        ->verifySubCategory($this->subcategory_id)
-        ->get()->toArray();
+            ->verifyCategory($this->category_id)
+            ->verifySubCategory($this->subcategory_id)
+            ->get()
+            ->toArray();
     }
 
     #[On('search')]
@@ -37,13 +38,13 @@ class Filter extends Component
 
     public function render()
     {
-        $products = Product::verifyProduct($this->family_id)
-        ->verifyCategory($this->category_id)
-        ->verifySubCategory($this->subcategory_id)
-        ->customOrder($this->orderBy)
-        ->selectFeatures($this->select_features)
-        ->search($this->search)
-        ->paginate(12);
+        $products = Product::query()
+            ->verifyProduct($this->family_id)
+            ->verifyCategory($this->category_id)
+            ->customOrder($this->orderBy)
+            ->selectFeatures($this->select_features)
+            ->search($this->search)
+            ->paginate(12);
 
         return view('livewire.shop.filter', compact('products'));
     }

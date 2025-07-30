@@ -2,26 +2,24 @@
 
 namespace App\Traits\Admin;
 
-use App\Models\SubCategory;
-
 trait skuGenerator
 {
     /**
-     * Genera el Sku del producto, en base a su subCategory, name y numRandoms
+     * Genera el SKU del producto, en base al nombre de la categoría, nombre del producto y un número aleatorio
      */
-    public function generateSku( string $subCategory,  string $name )
+    public function generateSku(string $categoryName, string $productName): string
     {
-        $subCategoryName = SubCategory::find($subCategory)->name;
-
-        $subCategoryPrefix = strtoupper(substr($subCategoryName, 0, 3));
-        $namePrefix = strtoupper(substr($name, 0, 3));
-
+        $categoryPrefix = strtoupper(substr($categoryName, 0, 3));
+        $namePrefix = strtoupper(substr($productName, 0, 3));
         $randomNumbers = rand(1000, 9999);
-        
-        return $subCategoryPrefix . $namePrefix . $randomNumbers;
+
+        return $categoryPrefix . $namePrefix . $randomNumbers;
     }
 
-    public function generateSkuVariant( string $name)
+    /**
+     * Genera un SKU para una variante del producto
+     */
+    public function generateSkuVariant(string $name): string
     {
         $prefix = strtoupper('var');
         $randomNumbers = rand(1000, 9999);
