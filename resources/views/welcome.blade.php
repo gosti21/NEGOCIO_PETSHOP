@@ -26,7 +26,6 @@
                             class="w-full aspect-[3/1] object-cover object-center" alt="img-default-cover">
                     @endif
                 </div>
-
             @endforeach
         </div>
         <!-- If we need pagination -->
@@ -84,6 +83,8 @@
         </div>
     </x-container>
 
+
+
     @push('js')
         <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
         <script>
@@ -102,5 +103,41 @@
             });
         </script>
     @endpush
+
+<script>
+    var botmanWidget = {
+        chatServer: '/botman',
+        introMessage: "✋ ¡Hola! Soy Petbot, tu asistente virtual. Escribe 'consulta' para ver opciones."
+    };
+</script>
+<script src='https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/widget.js'></script>
+
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const input = document.getElementById('message');
+            const message = input.value;
+            input.value = '';
+
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<div><strong>Tú:</strong> ${message}</div>`;
+
+            const res = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    message
+                })
+            });
+
+            const data = await res.json();
+            chatBox.innerHTML += `<div><strong>Bot:</strong> ${data.reply}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    </script>
 
 </x-app-layout>

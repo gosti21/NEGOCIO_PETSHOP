@@ -17,14 +17,16 @@
                                         Tarjeta de debito / crédito
                                     </span>
 
-                                    <img class="h-6 ml-auto" src="https://codersfree.com/img/payments/credit-cards.png" alt="">
+                                    <img class="h-6 ml-auto" src="https://codersfree.com/img/payments/credit-cards.png"
+                                        alt="">
                                 </label>
 
                                 <div class="p-4 bg-gray-100 dark:bg-gray-700 text-center border-t border-gray-600 dark:border-gray-300"
                                     x-show="pago == 1">
                                     <i class="fa-solid fa-credit-card text-9xl"></i>
                                     <p class="mt-2">
-                                        Luego de hacer click al "Pagar ahora", se abrira el checkout de Niubiz para completar tu compra de forma segura.
+                                        Luego de hacer click al "Pagar ahora", se abrira mercado pago para
+                                        completar tu compra de forma segura.
                                     </p>
                                 </div>
                             </li>
@@ -37,8 +39,7 @@
                                     </span>
                                 </label>
                                 <div class="p-4 bg-gray-100 dark:bg-gray-700 flex justify-center border-t border-gray-600 dark:border-gray-300"
-                                    x-cloak
-                                    x-show="pago == 2">
+                                    x-cloak x-show="pago == 2">
                                     <div>
                                         <p>1. Pago por depósito o transferencia bancaria:</p>
                                         <p>- BCP soles: 451-123456789-89</p>
@@ -63,8 +64,10 @@
                         @foreach (Cart::instance('shopping')->content() as $item)
                             <li class="flex items-center space-x-4">
                                 <div class="flex-shrink-0 relative">
-                                    <img class="h-14 aspect-square" src="{{ Storage::url($item->options->image) }}" alt="">
-                                    <div class="flex justify-center items-center h-6 w-6 bg-gray-900 dark:bg-gray-200 bg-opacity-70 rounded-full absolute -right-2 -top-2">
+                                    <img class="h-14 aspect-square" src="{{ Storage::url($item->options->image) }}"
+                                        alt="">
+                                    <div
+                                        class="flex justify-center items-center h-6 w-6 bg-gray-900 dark:bg-gray-200 bg-opacity-70 rounded-full absolute -right-2 -top-2">
                                         <span class="font-semibold dark:text-gray-700">
                                             {{ $item->qty }}
                                         </span>
@@ -94,8 +97,7 @@
                     <div class="flex justify-between">
                         <p>
                             Precio de envío
-                            <i class="fas fa-info-circle ml-1"
-                            title="El precio del envío es de S/. 15.00"></i>
+                            <i class="fas fa-info-circle ml-1" title="El precio del envío es de S/. 15.00"></i>
                         </p>
                         <p>
                             S/. 15.00
@@ -109,81 +111,36 @@
                             Total
                         </p>
                         <p>
-                            S/. {{Cart::instance('shopping')->subtotal() + 15 }}
+                            S/. {{ Cart::instance('shopping')->subtotal() + 15 }}
                         </p>
                     </div>
                     <div>
-                        <button class="btn btn-blue w-full" onclick="VisanetCheckout.open()">
-                            Pagar Ahora
-                        </button>
+                        <div id="wallet_container"></div>
+
                     </div>
-                    @if (session('niubiz'))
-                        @php
-                            $niubiz = session('niubiz');
-                            $response = $niubiz['response'];
-                            $purchaseNumber = $niubiz['purchaseNumber'];
-                        @endphp
 
-                        @isset($response['data'])
-                            <div class="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 mt-6" role="alert">
-                                <i class="fa-solid fa-triangle-exclamation shrink-0 inline me-3"></i>
-                                <span class="sr-only">Info</span>
-                                <div>
-                                    <span class="font-medium mb-4">{{ $response['data']['ACTION_DESCRIPTION'] }}</span>
-                                    <p>
-                                        <b>Número de pedido:</b>
-                                        {{ $purchaseNumber }}
-                                    </p>
-                                    <p>
-                                        <b>Fecha y hora del pedido:</b>
-                                        {{ now()->createFromFormat('ymdHis', $response['data']['TRANSACTION_DATE'])->format('d-m-Y H:i:s') }}
-                                    </p>
-
-                                    @isset($response['data']['CARD'])
-                                        <p>
-                                            <b>Tarjeta:</b>
-                                            {{ $response['data']['CARD'] }} ({{ $response['data']['BRAND'] }})
-                                        </p>
-                                    @endisset
-                                </div>
-                            </div>
-                        @endisset
-                    @else
-
-                    @endif
                 </div>
             </div>
         </div>
     </div>
 
     @push('js')
-        <script type="text/javascript" src="{{ config('services.niubiz.url_js') }}">
-        </script>
+        <script src="https://sdk.mercadopago.com/js/v2"></script>
 
-        <script type="text/javascript">
-
-            document.addEventListener('DOMContentLoaded', function(){
-                let purchasenumber = Math.floor(Math.random() * 1000000000);
-                let amount = {{Cart::instance('shopping')->subtotal() + 15 }};
-
-                VisanetCheckout.configure({
-                    sessiontoken:'{{ $sessionToken }}',
-                    channel:'web',
-                    merchantid:"{{ config('services.niubiz.merchant_id') }}",
-                    purchasenumber:purchasenumber,
-                    amount: amount,
-                    expirationminutes:'20',
-                    timeouturl:'about:blank',
-                    merchantlogo:'img/comercio.png',
-                    formbuttoncolor:'#000000',
-                    action:"{{ route('checkout.paid') }}?amount=" + amount + "&purchaseNumber=" + purchasenumber,
-                    complete: function(params) {
-                        alert(JSON.stringify(params));
-                    }
-                });
+        <script>
+            const mp = new MercadoPago("{{ config('services.mercadopago.public_key') }}", {
+                locale: "es-PE"
             });
 
-
+            mp.checkout({
+                preference: {
+                    id: "{{ $preferenceId }}"
+                },
+                render: {
+                    container: "#wallet_container",
+                    label: "Pagar ahora con Mercado Pago"
+                }
+            });
         </script>
     @endpush
 </x-app-layout>

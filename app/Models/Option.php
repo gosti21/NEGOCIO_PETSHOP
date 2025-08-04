@@ -14,17 +14,17 @@ class Option extends Model
     ];
 
     /**
-     * Verificar si esta presente la familia, para traer todos los features relacionadas a esta
+     * Verificar si está presente la familia, para traer todos los features relacionados a esta.
      */
     public function scopeVerifyFamily($query, $family_id)
     {
         $query->when($family_id, function ($query, $family_id) {
-            $query->whereHas('products.subCategory.category', function ($query) use ($family_id) {
+            $query->whereHas('products.category', function ($query) use ($family_id) {
                 $query->where('family_id', $family_id);
             })
             ->with([
                 'features' => function ($query) use ($family_id) {
-                    $query->whereHas('variants.product.subCategory.category', function ($query) use ($family_id) {
+                    $query->whereHas('variants.product.category', function ($query) use ($family_id) {
                         $query->where('family_id', $family_id);
                     });
                 }
@@ -33,37 +33,18 @@ class Option extends Model
     }
 
     /**
-     * Verificar si esta presente la categoria, para traer todos los features relacionadas a esta
+     * Verificar si está presente la categoría, para traer todos los features relacionados a esta.
      */
     public function scopeVerifyCategory($query, $category_id)
     {
-    $query->when($category_id, function ($query, $category_id) {
-        $query->whereHas('products', function ($query) use ($category_id) {
-            $query->where('category_id', $category_id);
-        })
-        ->with([
-            'features' => function ($query) use ($category_id) {
-                $query->whereHas('variants.product', function ($query) use ($category_id) {
-                    $query->where('category_id', $category_id);
-                });
-            }
-        ]);
-    });
-}
-
-    /**
-     * Verificar si esta presente la subcategoria, para traer todos los features relacionadas a esta
-     */
-    public function scopeVerifySubCategory($query, $subcategory_id)
-    {
-        $query->when($subcategory_id, function ($query, $subcategory_id) {
-            $query->whereHas('products', function ($query) use ($subcategory_id) {
-                $query->where('sub_category_id', $subcategory_id);
+        $query->when($category_id, function ($query, $category_id) {
+            $query->whereHas('products', function ($query) use ($category_id) {
+                $query->where('category_id', $category_id);
             })
             ->with([
-                'features' => function ($query) use ($subcategory_id) {
-                    $query->whereHas('variants.product', function ($query) use ($subcategory_id){
-                        $query->where('sub_category_id', $subcategory_id);
+                'features' => function ($query) use ($category_id) {
+                    $query->whereHas('variants.product', function ($query) use ($category_id) {
+                        $query->where('category_id', $category_id);
                     });
                 }
             ]);

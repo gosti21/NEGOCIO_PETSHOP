@@ -21,7 +21,7 @@ class VerifyStock
         foreach (Cart::content() as $item){
             $options = $item->options;
             $variant = Variant::where('sku', $options['sku'])->first();
-            $options['stock'] = $variant->stock;
+
 
             Cart::update($item->rowId, [
                 'options' => $options
