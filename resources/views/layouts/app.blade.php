@@ -61,6 +61,7 @@
             Swal.fire(data[0]);
         });
     </script>
+        @stack('js')
 </body>
 
 </html>

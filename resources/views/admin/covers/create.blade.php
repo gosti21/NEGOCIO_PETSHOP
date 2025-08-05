@@ -54,9 +54,11 @@
                 </label>
             </div>
             <figure class="max-w-full">
-                <img class="aspect-[3/1] max-w-full object-cover object-center"
-                    <img src="https://i.ibb.co/nsX6HpT7/Captura-desde-2025-05-06-10-12-19.png" alt="Captura-desde-2025-05-06-10-12-19" border="0"
-                    alt="portada" id="imgPreview">
+                <img class="aspect-[3/1] max-w-full object-cover object-center">
+                    <img src="{{ asset('assets/img/no-image-2-horizontal.png') }}"
+     alt="portada"
+     id="imgPreview"
+     class="aspect-[3/1] max-w-full object-cover object-center">
             </figure>
             <input type="hidden" name="old_image" value="{{ old('old_image', asset('assets/img/no-image-2-horizontal.png')) }}">
         </div>

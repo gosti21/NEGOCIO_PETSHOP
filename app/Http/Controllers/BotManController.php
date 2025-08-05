@@ -7,13 +7,10 @@ use App\Models\Product;
 use BotMan\BotMan\BotMan;
 use BotMan\BotMan\BotManFactory;
 use BotMan\BotMan\Drivers\DriverManager;
-use BotMan\BotMan\Messages\Conversations\Conversation;
-use BotMan\BotMan\Messages\Incoming\Answer;
 use BotMan\BotMan\Messages\Outgoing\Question;
 use BotMan\BotMan\Messages\Outgoing\Actions\Button;
 use Illuminate\Support\Facades\Http;
-use App\BotMan\Conversations\IAConversation;
-
+use App\Http\Controllers\Conversations\IAConversation;
 
 class BotManController extends Controller
 {
@@ -24,32 +21,33 @@ class BotManController extends Controller
         DriverManager::loadDriver(\BotMan\Drivers\Web\WebDriver::class);
         $botman = BotManFactory::create($config);
 
-        // 📋 Opciones
+        $botman->hears('hola', function (BotMan $bot) {
+            $bot->reply("✋ ¡Hola! Soy Petbot, tu asistente virtual. Escribe 'consulta' para ver las opciones disponibles.");
+            $this->showConsultaButton($bot);
+        });
+
+        // 📋 Menú principal
         $botman->hears('consulta', function (BotMan $bot) {
             $question = Question::create("📋 *Selecciona una opción:*")
                 ->fallback('No se pudo mostrar las opciones')
                 ->callbackId('consulta_options')
                 ->addButtons([
-                    Button::create('🛒 Ver productos')->value('productos'),
+                    Button::create('🛒 Ver productos')->value('ver_productos'),
                     Button::create('📍 Ubicación')->value('ubicacion'),
                     Button::create('🕗 Horario')->value('horario'),
-                    Button::create('🆘 Ayuda')->value('ayuda'),
+                    Button::create('🎉 Promociones')->value('promociones'),
+                    Button::create('📞 Contacto')->value('contacto'),
                     Button::create('🤖 Asistente IA')->value('asistente_ia'),
                 ]);
             $bot->reply($question);
         });
 
-        // 👋 Saludo
-        $botman->hears('hola', function (BotMan $bot) {
-            $bot->reply("✋ ¡Hola! Soy Petbot, tu asistente virtual. Escribe 'consulta' para ver los disponibles.");
-        });
-
-        // 🛒 Mostrar productos
-        $botman->hears('productos', function (BotMan $bot) {
+        // 🛒 Ver productos
+        $botman->hears('ver_productos', function (BotMan $bot) {
             $productos = Product::with('variants')->get();
 
             if ($productos->isEmpty()) {
-                $bot->reply("Lo siento, no hay productos disponibles en este momento.");
+                $bot->reply("🚫 No hay productos disponibles en este momento.");
             } else {
                 $msg = "🛒 *Nuestros productos disponibles:*\n\n";
                 foreach ($productos as $index => $producto) {
@@ -65,47 +63,42 @@ class BotManController extends Controller
             $this->showConsultaButton($bot);
         });
 
-        // 🕗 Horario
-        $botman->hears('horario', function (BotMan $bot) {
-            $bot->reply("Nuestro horario de atención es:\n🕗 Lunes a Sábado de 8:00 a.m. a 6:00 p.m.");
-            $this->showConsultaButton($bot);
-        });
-
         // 📍 Ubicación
         $botman->hears('ubicacion', function (BotMan $bot) {
             $bot->reply("📍 Nos encontramos en:\nAvenida de las flores 418, Huancayo.");
             $this->showConsultaButton($bot);
         });
 
-        // 🆘 Ayuda
-        $botman->hears('ayuda', function (BotMan $bot) {
-            $bot->reply("📞 Puedes comunicarte con nosotros al número: *906660509*.");
+        // 🕗 Horario
+        $botman->hears('horario', function (BotMan $bot) {
+            $bot->reply("🕗 Nuestro horario de atención es:\nLunes a Sábado de 8:00 a.m. a 6:00 p.m.");
             $this->showConsultaButton($bot);
         });
 
-        // 🤖 Asistente IA con ask()
+        // 🎉 Promociones
+        $botman->hears('promociones', function (BotMan $bot) {
+            $bot->reply("🎉 *Promociones actuales:*\n- 20% de descuento en alimento para gatos\n- Combo de shampoo + cepillo a solo S/. 35.00\n¡Válido hasta el sábado!");
+            $this->showConsultaButton($bot);
+        });
+
+        // 📞 Contacto
+        $botman->hears('contacto', function (BotMan $bot) {
+            $bot->reply("📞 Puedes comunicarte con nosotros por WhatsApp al siguiente enlace:\n👉 https://wa.me/51906660509");
+            $this->showConsultaButton($bot);
+        });
+
+        // 🤖 Asistente IA (aquí corriges el botón)
         $botman->hears('asistente_ia', function (BotMan $bot) {
-            $bot->reply('🤖 ¡Hola! Soy tu asistente IA. Escribe tu pregunta, y trataré de ayudarte.');
-
-            $bot->ask('¿Qué quieres saber?', function (Answer $answer) use ($bot) {
-                $pregunta = $answer->getText();
-                $respuesta = app(BotManController::class)->responderConIA($pregunta);
-                $bot->reply($respuesta);
-
-                // Opcional: volver a mostrar menú
-                $question = Question::create("¿Deseas hacer otra consulta?")
-                    ->addButtons([
-                        Button::create('🔁 Ver opciones')->value('consulta'),
-                    ]);
-                $bot->reply($question);
-            });
+            $bot->startConversation(new IAConversation());
         });
 
-        // ❓ Fallback
+        // 🛑 Fallback
         $botman->fallback(function (BotMan $bot) {
-            $bot->reply("Lo siento, no entendí eso. Escribe 'consulta' para ver opciones.");
+            $bot->reply("Lo siento, no entendí eso. Escribe 'consulta' para ver las opciones.");
+            $this->showConsultaButton($bot);
         });
 
+        // 🚀 Ejecutar bot
         $botman->listen();
     }
 
@@ -118,7 +111,8 @@ class BotManController extends Controller
         $bot->reply($question);
     }
 
-    public function responderConIA($pregunta)
+    // (opcional) respuesta directa sin conversación
+    public function responderConIATexto($pregunta)
     {
         $apiKey = env('OPENAI_API_KEY');
 

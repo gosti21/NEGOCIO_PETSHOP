@@ -23,9 +23,8 @@ class CoverRepository extends BaseRepository
 
     public function index()
     {
-        $covers = Cover::with('images')->orderby('order')->get();
-        $jsonTxt = json_encode($covers);
-        Log::info('XXXX'.$jsonTxt.'xxxxxx');
+        $covers = Cover::with('images')->orderBy('order')->get();
+        Log::info('Portadas obtenidas: ' . json_encode($covers));
         return $covers;
     }
 
@@ -34,18 +33,24 @@ class CoverRepository extends BaseRepository
         $this->validateStoreRequest($request);
 
         DB::beginTransaction();
+
         try {
             $cover = Cover::create([
                 'title' => $request->title,
                 'start_at' => $request->start_at,
                 'end_at' => $request->end_at
             ]);
-            $img = Storage::put('covers', $request->image);
-            Log::info('XXXXXXXXXXXX'.$img .'XXXXXXXXXXXXXXX');
 
-            $cover->images()->create([
-                'path' => $img
-            ]);
+            if ($request->hasFile('image')) {
+                $imgPath = $request->file('image')->store('covers');
+                Log::info('Imagen almacenada en: ' . $imgPath);
+
+                $cover->images()->create([
+                    'path' => $imgPath
+                ]);
+            } else {
+                Log::warning('No se subió imagen al crear portada.');
+            }
 
             DB::commit();
 
@@ -53,13 +58,14 @@ class CoverRepository extends BaseRepository
                 'title' => 'Portada creada!',
                 'text' => 'La portada ha sido creada correctamente.',
             ]);
-
         } catch (\Exception $e) {
             DB::rollback();
 
+            Log::error('Error al crear portada: ' . $e->getMessage());
+
             $this->alertGenerate1([
                 'title' => "¡Error!",
-                'text' => "Hubo un problema al eliminar el registro.",
+                'text' => "Hubo un problema al crear la portada.",
                 'icon' => "error",
             ]);
         }
@@ -67,29 +73,33 @@ class CoverRepository extends BaseRepository
 
     public function update(Request $request, int $id)
     {
-        $cover = Cover::findOrFail($id);
         $this->validateUpdateRequest($request);
 
+        $cover = Cover::findOrFail($id);
+
         DB::beginTransaction();
-        try{
 
-            if($request->image){
+        try {
+            if ($request->hasFile('image')) {
                 $image = $cover->images->first();
-                if ($image && $image->path) {
 
-                    Storage::delete($cover->images->first()->path);
-                    $img = $request->image->store('covers');
-
-                    $cover->images()->update([
-                        'path' => $img
-                    ]);
+                if ($image) {
+                    Storage::delete($image->path);
+                    $newPath = $request->file('image')->store('covers');
+                    $image->update(['path' => $newPath]);
+                    Log::info("Imagen actualizada para portada ID $id: $newPath");
+                } else {
+                    $newPath = $request->file('image')->store('covers');
+                    $cover->images()->create(['path' => $newPath]);
+                    Log::info("Imagen agregada a portada ID $id: $newPath");
                 }
             }
 
             $cover->update([
                 'title' => $request->title,
                 'start_at' => $request->start_at,
-                'is_active' => $request->is_active
+                'end_at' => $request->end_at,
+                'is_active' => $request->is_active ?? 0,
             ]);
 
             DB::commit();
@@ -98,13 +108,14 @@ class CoverRepository extends BaseRepository
                 'title' => 'Portada actualizada!',
                 'text' => 'La portada ha sido actualizada correctamente.',
             ]);
-
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollback();
+
+            Log::error('Error al actualizar portada: ' . $e->getMessage());
 
             $this->alertGenerate1([
                 'title' => "¡Error!",
-                'text' => "Hubo un problema al eliminar el registro.",
+                'text' => "Hubo un problema al actualizar la portada.",
                 'icon' => "error",
             ]);
         }
@@ -113,14 +124,16 @@ class CoverRepository extends BaseRepository
     public function destroy(int $id)
     {
         DB::beginTransaction();
+
         try {
-
             $cover = Cover::findOrFail($id);
-
             $image = $cover->images->first();
 
-            Storage::delete($image->path);
-            $image->delete();
+            if ($image) {
+                Storage::delete($image->path);
+                $image->delete();
+                Log::info("Imagen eliminada: {$image->path}");
+            }
 
             $cover->delete();
 
@@ -130,14 +143,15 @@ class CoverRepository extends BaseRepository
                 'title' => '¡Registro eliminado!',
                 'text' => "El registro ha sido eliminado correctamente",
             ]);
-
         } catch (\Exception $e) {
             DB::rollback();
+
+            Log::error('Error al eliminar portada: ' . $e->getMessage());
 
             $this->alertGenerate1([
                 'icon' => 'error',
                 'title' => '¡Error!',
-                'text' => "$e",
+                'text' => "Hubo un problema al eliminar el registro.",
             ]);
         }
     }

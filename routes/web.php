@@ -10,8 +10,7 @@ use App\Http\Controllers\Shop\WelcomeController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BotManController;
-use App\Http\Controllers\IAController;
-
+use App\Http\Controllers\Conversations\IAConversation;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome.index');
 Route::get('families/{family}', [FamilyController::class, 'show'])->name('families.show');
@@ -27,6 +26,7 @@ Route::get('shipping', [ShippingController::class, 'index'])
 
 Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('checkout/paid', [CheckoutController::class, 'paid'])->name('checkout.paid')->withoutMiddleware([ValidateCsrfToken::class]);
+
 Route::get('thanks', function () {
     return view('shop.thanks');
 })->name('thanks');
@@ -34,6 +34,7 @@ Route::get('thanks', function () {
 Route::get('/legal/terms-and-conditions', function () {
     return view('shop.terms-and-conditions');
 })->name('legal.terms-and-conditions');
+
 Route::get('/legal/privacy-policy', function () {
     return view('shop.privacy-policy');
 })->name('legal.privacy-policy');
@@ -48,7 +49,13 @@ Route::middleware([
     })->name('dashboard');
 });
 
+// RUTA PRINCIPAL PARA BOTMAN (GET Y POST)
 Route::match(['get', 'post'], '/botman', [BotManController::class, 'handle']);
 
+// OPCIONAL: Ruta para probar iniciar IAConversation manualmente (útil en desarrollo)
+Route::get('/botman/test', function () {
+    $botman = app('botman');
+    $botman->startConversation(new IAConversation());
+});
 
-Route::post('/preguntar-ia', [IAController::class, 'responderConIA']);
+Route::post('/preguntar-ia', [BotManController::class, 'responderConIATexto']);

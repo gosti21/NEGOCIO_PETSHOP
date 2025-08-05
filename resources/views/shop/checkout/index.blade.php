@@ -114,9 +114,9 @@
                             S/. {{ Cart::instance('shopping')->subtotal() + 15 }}
                         </p>
                     </div>
+
                     <div>
                         <div id="wallet_container"></div>
-
                     </div>
 
                 </div>
@@ -124,22 +124,24 @@
         </div>
     </div>
 
+
     @push('js')
         <script src="https://sdk.mercadopago.com/js/v2"></script>
-
         <script>
-            const mp = new MercadoPago("{{ config('services.mercadopago.public_key') }}", {
-                locale: "es-PE"
-            });
+            document.addEventListener("DOMContentLoaded", function() {
+                const mp = new MercadoPago("{{ config('services.mercadopago.public_key') }}", {
+                    locale: "es-PE" // importante para Perú
+                });
 
-            mp.checkout({
-                preference: {
-                    id: "{{ $preferenceId }}"
-                },
-                render: {
-                    container: "#wallet_container",
-                    label: "Pagar ahora con Mercado Pago"
-                }
+                mp.checkout({
+                    preference: {
+                        id: "{{ $preferenceId }}"
+                    },
+                    render: {
+                        container: "#wallet_container",
+                        label: "Pagar ahora con Mercado Pago"
+                    }
+                });
             });
         </script>
     @endpush

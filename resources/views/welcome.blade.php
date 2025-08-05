@@ -22,7 +22,7 @@
                         <img src="{{ Storage::url($cover->images->first()->path) }}"
                             class="w-full aspect-[3/1] object-cover object-center" alt="">
                     @else
-                        <img src="{{ asset('images/default-cover.jpg') }}"
+                        <img src="{{ Storage::url($cover->images->first()->path) }}"
                             class="w-full aspect-[3/1] object-cover object-center" alt="img-default-cover">
                     @endif
                 </div>
@@ -56,7 +56,7 @@
                                 <img src="{{ Storage::url($image->path) }}" alt="img-product-{{ $product->name }}"
                                     class="w-full h-48 object-cover object-center">
                             @else
-                                <img src="{{ asset('images/default-product.jpg') }}" alt="img-default"
+                                <img src="{{ asset('storage/default-product.jpg') }}" alt="img-default"
                                     class="w-full h-48 object-cover object-center">
                             @endif
 
@@ -104,13 +104,16 @@
         </script>
     @endpush
 
-<script>
-    var botmanWidget = {
-        chatServer: '/botman',
-        introMessage: "✋ ¡Hola! Soy Petbot, tu asistente virtual. Escribe 'consulta' para ver opciones."
-    };
-</script>
-<script src='https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/widget.js'></script>
+    <script>
+        var botmanWidget = {
+            title: 'Petbot',
+            chatServer: '/botman',
+            introMessage: "✋ ¡Hola! Soy Petbot, tu asistente virtual. Escribe 'consulta' para ver opciones.",
+            mainColor: '#fec51c',
+            bubbleBackground: '#fec51c',
+        };
+    </script>
+    <script src='https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/widget.js'></script>
 
     <script>
         document.getElementById('chat-form').addEventListener('submit', async function(e) {

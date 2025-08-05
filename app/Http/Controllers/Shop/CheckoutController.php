@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Resources\Preference;
 use MercadoPago\Resources\Item;
+use MercadoPago\Client\Preference\PreferenceClient;
 
 class CheckoutController extends Controller implements HasMiddleware
 {
@@ -25,7 +26,7 @@ class CheckoutController extends Controller implements HasMiddleware
 
     public function index()
     {
-        // Aquí generamos el preferenceId para Mercado Pago
+        // Generar el preferenceId de Mercado Pago
         $preferenceId = $this->generateMercadoPagoPreference();
 
         return view('shop.checkout.index', compact('preferenceId'));
@@ -33,7 +34,8 @@ class CheckoutController extends Controller implements HasMiddleware
 
     public function generateMercadoPagoPreference()
     {
-        MercadoPagoConfig::setAccessToken(config('services.mercadopago.token'));
+        // Establecer el token desde .env (debe estar correctamente configurado)
+        MercadoPagoConfig::setAccessToken(config('services.mercadopago.access_token'));
 
         $items = [];
 
@@ -46,18 +48,15 @@ class CheckoutController extends Controller implements HasMiddleware
             ];
         }
 
-        $preference = Preference::create([
-            'items' => $items
+        $client = new PreferenceClient();
+        $preference = $client->create([
+            'items' => $items,
         ]);
 
         return $preference->id;
     }
-
     public function paid(Request $request)
     {
-        // Aquí puedes manejar el webhook o redirección de Mercado Pago luego del pago
-        // Este ejemplo no implementa validación del pago real
-
         $address = Address::where('user_id', Auth::user()->id)
             ->where('default', true)
             ->first();
