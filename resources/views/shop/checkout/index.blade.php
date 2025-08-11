@@ -115,58 +115,40 @@
                         </p>
                     </div>
 
-                    <div>
-                        hilar el boton de mercado pago
+                    <div class="flex justify-center">
+
+                        <button id="checkout-button"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
+                            Pagar ahora con Stripe
+                        </button>
                     </div>
 
-
-                    <div id="culqi-button-container">
-                        <button id="btn-pay" class="bg-green-500 text-white px-4 py-2 rounded">Pagar ahora</button>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 
 
+
     @push('js')
-        <script src="https://checkout.culqi.com/js/v4"></script>
+        <script src="https://js.stripe.com/v3/"></script>
         <script>
-            Culqi.publicKey = "{{ $publicKey }}";
-            Culqi.settings({
-                title: 'Mi Tienda',
-                currency: 'PEN',
-                description: 'Compra en mi tienda',
-                amount: {{ $total }}
-            });
+            const stripe = Stripe("{{ config('services.stripe.key') }}");
 
-            document.getElementById('btn-pay').addEventListener('click', function() {
-                Culqi.open();
-            });
-
-            function culqi() {
-                if (Culqi.token) {
-                    let token = Culqi.token.id;
-                    fetch("{{ route('checkout.paid') }}", {
-                        method: 'POST',
+            document.getElementById("checkout-button").addEventListener("click", function() {
+                fetch("{{ route('checkout.session') }}", {
+                        method: "POST",
                         headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            token
-                        })
-                    }).then(res => {
-                        if (res.redirected) {
-                            window.location.href = res.url;
-                        } else {
-                            res.text().then(alert);
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
                         }
-                    });
-                } else {
-                    alert(Culqi.error.user_message);
-                }
-            }
+                    })
+                    .then(response => response.json())
+                    .then(session => stripe.redirectToCheckout({
+                        sessionId: session.id
+                    }))
+                    .catch(error => console.error("Error:", error));
+            });
         </script>
     @endpush
 </x-app-layout>

@@ -8,73 +8,75 @@ use App\Models\Order;
 use App\Models\Variant;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Auth;
-use Culqi\Culqi;
+use Stripe\Stripe;
+use Stripe\Checkout\Session as CheckoutSession;
 
-class CheckoutController extends Controller implements HasMiddleware
+class CheckoutController extends Controller
 {
-    public static function middleware(): array
-    {
-        return [
-            'auth',
-        ];
-    }
-
     public function index()
     {
-        // En Culqi, no necesitamos generar un preferenceId
-        $publicKey = config('services.culqi.public_key');
-        $total = (Cart::instance('shopping')->subtotal() + 15) * 100; // en céntimos
-        return view('shop.checkout.index', compact('publicKey', 'total'));
+        return view('shop.checkout.index');
     }
 
-    public function paid(Request $request)
+    public function createStripeSession()
     {
-        // Validamos que haya token de Culqi
-        if (!$request->has('token')) {
-            return back()->withErrors('Error: No se recibió el token de pago.');
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        $lineItems = [];
+        foreach (Cart::instance('shopping')->content() as $item) {
+            $lineItems[] = [
+                'price_data' => [
+                    'currency' => 'pen',
+                    'product_data' => [
+                        'name' => $item->name,
+                    ],
+                    'unit_amount' => intval($item->price * 100), // en centavos
+                ],
+                'quantity' => $item->qty,
+            ];
         }
 
-        $culqi = new Culqi(['api_key' => config('services.culqi.secret_key')]);
+        $session = CheckoutSession::create([
+            'payment_method_types' => ['card'],
+            'line_items' => $lineItems,
+            'mode' => 'payment',
+            'success_url' => route('stripe.success'),
+            'cancel_url' => route('stripe.cancel'),
+        ]);
 
-        try {
-            $charge = $culqi->Charges->create([
-                "amount" => (Cart::instance('shopping')->subtotal() + 15) * 100,
-                "currency_code" => "PEN",
-                "email" => Auth::user()->email,
-                "source_id" => $request->token
-            ]);
+        return response()->json(['id' => $session->id]);
+    }
 
-            if ($charge->outcome->type === 'venta_exitosa') {
-                $address = Address::where('user_id', Auth::user()->id)
-                    ->where('default', true)
-                    ->first();
+    public function success()
+    {
+        $address = Address::where('user_id', Auth::user()->id)
+            ->where('default', true)
+            ->first();
 
-                $order = Order::create([
-                    'user_id' => Auth::user()->id,
-                    'content' => Cart::instance('shopping')->content(),
-                    'address' => $address,
-                    'payment_id' => $charge->id,
-                    'total' => Cart::instance('shopping')->subtotal() + 15,
-                ]);
+        $order = Order::create([
+            'user_id' => Auth::user()->id,
+            'content' => Cart::instance('shopping')->content(),
+            'address' => $address,
+            'payment_id' => 'Stripe-' . now()->timestamp,
+            'total' => Cart::instance('shopping')->subtotal() + 15,
+        ]);
 
-                foreach (Cart::instance('shopping')->content() as $item) {
-                    Variant::where('sku', $item->options['sku'])
-                        ->decrement('stock', $item->qty);
-                }
-
-                Cart::destroy();
-                if (Auth::check()) {
-                    Cart::store(Auth::user()->id);
-                }
-
-                return redirect()->route('thanks')->with('order', $order);
-            } else {
-                return back()->withErrors('El pago no se procesó correctamente.');
-            }
-        } catch (\Exception $e) {
-            return back()->withErrors('Error en el pago: ' . $e->getMessage());
+        foreach (Cart::instance('shopping')->content() as $item) {
+            Variant::where('sku', $item->options['sku'])
+                ->decrement('stock', $item->qty);
         }
+
+        Cart::destroy();
+        if (Auth::check()) {
+            Cart::store(Auth::user()->id);
+        }
+
+        return redirect()->route('thanks')->with('order', $order);
+    }
+
+    public function cancel()
+    {
+        return redirect()->route('checkout.index')->with('error', 'Pago cancelado');
     }
 }

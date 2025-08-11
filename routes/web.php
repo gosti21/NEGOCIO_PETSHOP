@@ -59,3 +59,9 @@ Route::get('/botman/test', function () {
 });
 
 Route::post('/preguntar-ia', [BotManController::class, 'responderConIATexto']);
+
+
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout/session', [CheckoutController::class, 'createStripeSession'])->name('checkout.session');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('stripe.success');
+Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('stripe.cancel');

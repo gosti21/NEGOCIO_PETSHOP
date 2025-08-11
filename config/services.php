@@ -46,9 +46,14 @@ return [
     ],
 
 
-    'culqi' => [
-        'public_key' => env('CULQI_PUBLIC_KEY'),
-        'secret_key' => env('CULQI_SECRET_KEY'),
+    //'culqi' => [
+    //    'public_key' => env('CULQI_PUBLIC_KEY'),
+    //    'secret_key' => env('CULQI_SECRET_KEY'),
+    //],
+
+    'stripe' => [
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
     ],
 
 ];

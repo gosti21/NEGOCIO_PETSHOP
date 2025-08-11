@@ -22,7 +22,8 @@
         "mercadopago/dx-php": "^3.5",
         "openai-php/client": "^0.14.0",
         "rappasoft/laravel-livewire-tables": "^3.7",
-        "spatie/laravel-permission": "^6.16"
+        "spatie/laravel-permission": "^6.16",
+        "stripe/stripe-php": "^17.5"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15",
