@@ -116,9 +116,13 @@
                     </div>
 
                     <div>
-                        <div id="wallet_container"></div>
+                        hilar el boton de mercado pago
                     </div>
 
+
+                    <div id="culqi-button-container">
+                        <button id="btn-pay" class="bg-green-500 text-white px-4 py-2 rounded">Pagar ahora</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,23 +130,43 @@
 
 
     @push('js')
-        <script src="https://sdk.mercadopago.com/js/v2"></script>
+        <script src="https://checkout.culqi.com/js/v4"></script>
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const mp = new MercadoPago("{{ config('services.mercadopago.public_key') }}", {
-                    locale: "es-PE" // importante para Perú
-                });
-
-                mp.checkout({
-                    preference: {
-                        id: "{{ $preferenceId }}"
-                    },
-                    render: {
-                        container: "#wallet_container",
-                        label: "Pagar ahora con Mercado Pago"
-                    }
-                });
+            Culqi.publicKey = "{{ $publicKey }}";
+            Culqi.settings({
+                title: 'Mi Tienda',
+                currency: 'PEN',
+                description: 'Compra en mi tienda',
+                amount: {{ $total }}
             });
+
+            document.getElementById('btn-pay').addEventListener('click', function() {
+                Culqi.open();
+            });
+
+            function culqi() {
+                if (Culqi.token) {
+                    let token = Culqi.token.id;
+                    fetch("{{ route('checkout.paid') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            token
+                        })
+                    }).then(res => {
+                        if (res.redirected) {
+                            window.location.href = res.url;
+                        } else {
+                            res.text().then(alert);
+                        }
+                    });
+                } else {
+                    alert(Culqi.error.user_message);
+                }
+            }
         </script>
     @endpush
 </x-app-layout>
