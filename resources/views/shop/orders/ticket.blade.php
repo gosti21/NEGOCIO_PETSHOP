@@ -66,19 +66,19 @@
                 Información de la empresa:
             </h4>
             <div>
-                Nombre: Only Home
+                Nombre: Petshop
             </div>
             <div>
                 Ruc: 10489692461
             </div>
             <div>
-                Teléfono: 937 366 147
+                Teléfono: 906 660 509
             </div>
             <div>
-                Correo: onlyhome79@gmail.com
+                Correo: Hugoastete@gmail.com
             </div>
         </div>
-        
+
         <div class="info">
             <h4>
                 Datos del cliente:

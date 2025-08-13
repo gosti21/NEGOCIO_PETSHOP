@@ -119,7 +119,7 @@
 
                         <button id="checkout-button"
                             class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
-                            Pagar ahora con Stripe
+                            Pagar ahora
                         </button>
                     </div>
 
