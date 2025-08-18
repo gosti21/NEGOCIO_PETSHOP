@@ -49,13 +49,11 @@ class BotManController extends Controller
             if ($productos->isEmpty()) {
                 $bot->reply("🚫 No hay productos disponibles en este momento.");
             } else {
-                $msg = "🛒 *Nuestros productos disponibles:*\n\n";
+                $msg = "🐾 *Catálogo de productos disponibles:*\n\n";
                 foreach ($productos as $index => $producto) {
-                    $variant = $producto->variants->first();
-                    $precio = $variant ? number_format($variant->price, 2) : '0.00';
-                    $msg .= "🔹 *" . ($index + 1) . ". {$producto->name}*\n";
-                    $msg .= "   💵 Precio: S/. {$precio}\n";
-                    $msg .= "-------------------------------------\n";
+                    $msg .= "✨ *" . ($index + 1) . ". {$producto->name}*\n";
+                    $msg .= "   📦 Descripción: " . ($producto->description ?? 'Sin descripción') . "\n";
+                    $msg .= "────────────────────────────\n";
                 }
                 $bot->reply($msg);
             }

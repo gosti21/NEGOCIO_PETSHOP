@@ -78,14 +78,15 @@ class User extends Authenticatable
         $query->when($selectBy == 1, function ($query) {
             $query->doesntHave('roles');
         })
-        ->when($selectBy == 2, function ($query) {
-            $query->whereHas('roles', function ($query) {
-                $query->where('name', 'admin');
+            ->when($selectBy == 2, function ($query) {
+                $query->whereHas('roles', function ($query) {
+                    $query->where('name', 'admin');
+                });
             });
-        });
     }
 
-    public function scopeSearch($query, $search){
+    public function scopeSearch($query, $search)
+    {
         $query->where(function ($query) use ($search) {
             $query->where('name', 'like', '%' . $search . '%');
             $query->orWhere('last_name', 'like', '%' . $search . '%');
@@ -98,9 +99,9 @@ class User extends Authenticatable
         return $this->hasMany(Address::class)->chaperone();
     }
 
-    public function documents(): MorphOne
+    public function documents()
     {
-        return $this->morphOne(DocumentType::class, 'documentable');
+        return $this->morphMany(DocumentType::class, 'documentable');
     }
 
     public function phones(): MorphOne

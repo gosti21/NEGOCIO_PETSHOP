@@ -2,6 +2,7 @@
 
 namespace App\Actions\Fortify;
 
+use Illuminate\Support\Facades\Http;
 use App\Enums\TypeOfDocuments;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,7 @@ use Laravel\Jetstream\Jetstream;
 
 class CreateNewUser implements CreatesNewUsers
 {
+
     use PasswordValidationRules;
 
     /**
@@ -41,12 +43,12 @@ class CreateNewUser implements CreatesNewUsers
                 'email' => $input['email'],
                 'password' => Hash::make($input['password']),
             ]);
-    
+
             $user->documents()->create([
                 'document_type' => $input['document_type'],
                 'document_number' => $input['document_number'],
             ]);
-            
+
             $user->phones()->create([
                 'number' => $input['phone']
             ]);
@@ -61,3 +63,5 @@ class CreateNewUser implements CreatesNewUsers
         }
     }
 }
+
+
