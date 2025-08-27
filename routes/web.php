@@ -11,6 +11,7 @@ use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BotManController;
 use App\Http\Controllers\Conversations\IAConversation;
+use OpenAI\Laravel\Facades\OpenAI;
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome.index');
 Route::get('families/{family}', [FamilyController::class, 'show'])->name('families.show');
@@ -65,3 +66,19 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.in
 Route::post('/checkout/session', [CheckoutController::class, 'createStripeSession'])->name('checkout.session');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('stripe.success');
 Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('stripe.cancel');
+
+//chatgptbot
+Route::post('/chatbot/ask', [App\Http\Controllers\ChatbotController::class, 'ask'])->name('chatbot.ask');
+
+
+
+Route::get('/test-openai', function () {
+    $result = OpenAI::chat()->create([
+        'model' => 'gpt-4o-mini', // o 'gpt-4.1-mini'
+        'messages' => [
+            ['role' => 'user', 'content' => 'Hola, ¿me puedes responder desde Laravel?'],
+        ],
+    ]);
+
+    return $result->choices[0]->message->content;
+});

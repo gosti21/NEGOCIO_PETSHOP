@@ -101,7 +101,7 @@ class User extends Authenticatable
 
     public function documents()
     {
-        return $this->morphMany(DocumentType::class, 'documentable');
+        return $this->morphOne(DocumentType::class, 'documentable');
     }
 
     public function phones(): MorphOne

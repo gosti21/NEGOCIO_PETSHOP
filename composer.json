@@ -21,6 +21,7 @@
         "livewire/livewire": "^3.6.4",
         "mercadopago/dx-php": "^3.5",
         "openai-php/client": "^0.14.0",
+        "openai-php/laravel": "^0.14.0",
         "rappasoft/laravel-livewire-tables": "^3.7",
         "spatie/laravel-permission": "^6.16",
         "stripe/stripe-php": "^17.5"
