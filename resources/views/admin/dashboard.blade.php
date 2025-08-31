@@ -42,8 +42,11 @@
     <!-- Chatbot -->
     <div id="chatbot"
         class="fixed bottom-4 right-4 w-80 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-2xl shadow-lg">
-        <div class="p-3 bg-yellow-400 text-black font-bold rounded-t-2xl">
-            🤖 Chatbot
+        <div class="p-3 bg-yellow-400 text-black font-bold rounded-t-2xl flex justify-between items-center">
+            <span>🤖 Chatbot</span>
+            <button id="chatbot-reset" class="text-xs bg-red-500 hover:bg-red-600 px-2 py-1 rounded text-white">
+                🔄 Reiniciar
+            </button>
         </div>
         <div id="chatbot-messages" class="p-3 h-64 overflow-y-auto text-sm space-y-2"></div>
         <div class="flex border-t border-gray-300 dark:border-gray-700">
@@ -56,6 +59,25 @@
     </div>
 
     <script>
+        // Función de bienvenida
+        function setWelcomeMessage() {
+            let messagesDiv = document.getElementById('chatbot-messages');
+            messagesDiv.innerHTML = `
+                <div class="text-left">
+                    <span class="bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded-lg">
+                        👋 Hola, soy tu asistente virtual 🐾 ¿Qué productos nuevos veremos hoy para tu mascota?
+                    </span>
+                </div>
+            `;
+        }
+
+        // 👋 Al cargar la página, mostrar bienvenida
+        document.addEventListener("DOMContentLoaded", setWelcomeMessage);
+
+        // 🔄 Botón Reiniciar
+        document.getElementById('chatbot-reset').addEventListener('click', setWelcomeMessage);
+
+        // 📤 Enviar mensaje
         document.getElementById('chatbot-send').addEventListener('click', sendMessage);
         document.getElementById('chatbot-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendMessage();
@@ -81,14 +103,24 @@
                         message
                     })
                 })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) {
+                        return res.text().then(text => {
+                            throw new Error(text)
+                        });
+                    }
+                    return res.json();
+                })
                 .then(data => {
                     messagesDiv.innerHTML +=
                         `<div class="text-left"><span class="bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded-lg">${data.reply}</span></div>`;
                     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                })
+                .catch(err => {
+                    console.error("Error del chatbot:", err);
+                    messagesDiv.innerHTML +=
+                        `<div class="text-left text-red-500"><span>Error en el servidor</span></div>`;
                 });
         }
     </script>
-
-
 </x-admin-layout>
