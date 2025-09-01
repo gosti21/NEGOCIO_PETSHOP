@@ -16,6 +16,7 @@ class ChatbotController extends Controller
         // Obtenemos historial desde sesión
         $messages = session('chat_history', []);
 
+        
         // Si es la primera vez, agregamos el system
         if (empty($messages)) {
             $messages[] = [
