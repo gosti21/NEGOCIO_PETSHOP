@@ -8,14 +8,61 @@
                 width: 12px;
                 height: 12px;
             }
+
+            /* 💬 Estilos chatbot */
+            #chatbot {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 320px;
+                background: white;
+                border: 1px solid #ddd;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                z-index: 50;
+            }
+            #chatbot-header {
+                background: #fec51c;
+                padding: 8px 12px;
+                font-weight: bold;
+                color: #222;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            #chatbot-messages {
+                flex: 1;
+                padding: 10px;
+                overflow-y: auto;
+                font-size: 14px;
+                background: #f9f9f9;
+            }
+            #chatbot-footer {
+                display: flex;
+                border-top: 1px solid #ddd;
+            }
+            #chatbot-input {
+                flex: 1;
+                padding: 8px;
+                border: none;
+                outline: none;
+            }
+            #chatbot-send, #chatbot-reset {
+                background: #fec51c;
+                border: none;
+                padding: 8px 12px;
+                cursor: pointer;
+                font-weight: bold;
+            }
         </style>
     @endpush
 
     <!-- Slider main container -->
     <div class="swiper mb-10">
-        <!-- Additional required wrapper -->
         <div class="swiper-wrapper">
-            <!-- Slides -->
             @foreach ($covers as $cover)
                 <div class="swiper-slide">
                     @if ($cover->images->first())
@@ -28,10 +75,8 @@
                 </div>
             @endforeach
         </div>
-        <!-- If we need pagination -->
-        <div class="swiper-pagination"></div>
 
-        <!-- If we need navigation buttons -->
+        <div class="swiper-pagination"></div>
         <div class="swiper-button-prev text-[#FEC51C] font-semibold"></div>
         <div class="swiper-button-next text-[#FEC51C] font-semibold"></div>
     </div>
@@ -60,7 +105,6 @@
                                     class="w-full h-48 object-cover object-center">
                             @endif
 
-
                             <div class="p-4">
                                 <h1
                                     class="text-lg font-bold text-gray-900 dark:text-white mb-1 line-clamp-2 min-h-[56px]">
@@ -83,10 +127,8 @@
         </div>
     </x-container>
 
-
-
     @push('js')
-        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js">
+        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
         <script>
             const swiper = new Swiper('.swiper', {
                 loop: true,
@@ -104,17 +146,102 @@
         </script>
     @endpush
 
+    <!-- 💬 Chatbot personalizado -->
+    <div id="chatbot">
+        <div id="chatbot-header">
+            Petbot 🐾
+            <button id="chatbot-reset">↺</button>
+        </div>
+        <div id="chatbot-messages"></div>
+        <div id="chatbot-footer">
+            <input id="chatbot-input" type="text" placeholder="Escribe tu mensaje...">
+            <button id="chatbot-send">Enviar</button>
+        </div>
+    </div>
+
     <script>
-        var botmanWidget = {
-            title: 'Petbot',
-            chatServer: '/botman',
-            introMessage: "✋ ¡Hola! Soy Petbot, tu asistente virtual. Escribe 'consulta' para ver opciones.",
-            mainColor: '#fec51c',
-            bubbleBackground: '#fec51c',
-        };
+        function setWelcomeMessage() {
+            let messagesDiv = document.getElementById('chatbot-messages');
+            messagesDiv.innerHTML = `
+                <div class="text-left">
+                    <span class="bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded-lg">
+                        👋 Hola, soy tu asistente virtual 🐾 ¿Qué productos nuevos veremos hoy para tu mascota?
+                    </span>
+                </div>
+            `;
+        }
+
+        document.addEventListener("DOMContentLoaded", setWelcomeMessage);
+        document.getElementById('chatbot-reset').addEventListener('click', setWelcomeMessage);
+
+        document.getElementById('chatbot-send').addEventListener('click', sendMessage);
+        document.getElementById('chatbot-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function formatBotReply(text) {
+            let formatted = text.replace(/\n/g, '<br>');
+            if (formatted.includes("-")) {
+                let lines = formatted.split(/<br>/g);
+                let inList = false;
+                let final = "";
+                lines.forEach(line => {
+                    if (line.trim().startsWith("-")) {
+                        if (!inList) {
+                            final += "<ul class='list-disc list-inside space-y-1'>";
+                            inList = true;
+                        }
+                        final += "<li>" + line.replace(/^-+/, '').trim() + "</li>";
+                    } else {
+                        if (inList) {
+                            final += "</ul>";
+                            inList = false;
+                        }
+                        final += line + "<br>";
+                    }
+                });
+                if (inList) final += "</ul>";
+                formatted = final;
+            }
+            return formatted;
+        }
+
+        function sendMessage() {
+            let input = document.getElementById('chatbot-input');
+            let message = input.value.trim();
+            if (!message) return;
+
+            let messagesDiv = document.getElementById('chatbot-messages');
+            messagesDiv.innerHTML +=
+                `<div class="text-right"><span class="bg-yellow-300 px-2 py-1 rounded-lg">${message}</span></div>`;
+            input.value = '';
+
+            fetch("{{ route('chatbot.ask') }}", {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({ message })
+                })
+                .then(res => {
+                    if (!res.ok) {
+                        return res.text().then(text => { throw new Error(text) });
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    let formattedReply = formatBotReply(data.reply);
+                    messagesDiv.innerHTML +=
+                        `<div class="text-left"><span class="bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded-lg block">${formattedReply}</span></div>`;
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                })
+                .catch(err => {
+                    console.error("Error del chatbot:", err);
+                    messagesDiv.innerHTML +=
+                        `<div class="text-left text-red-500"><span>Error en el servidor</span></div>`;
+                });
+        }
     </script>
-    <script src='https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/widget.js'></script>
-
-
 
 </x-app-layout>
