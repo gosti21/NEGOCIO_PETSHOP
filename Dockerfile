@@ -1,29 +1,34 @@
-# Imagen base oficial de PHP con FPM
 FROM php:8.2-fpm
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    git unzip libpq-dev libzip-dev zip \
-    && docker-php-ext-install pdo_mysql zip
+    git \
+    unzip \
+    libpq-dev \
+    libzip-dev \
+    zip \
+    && docker-php-ext-install pdo_mysql zip bcmath
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copiar proyecto
 WORKDIR /var/www/html
+
+# Copiar proyecto
 COPY . .
 
 # Instalar dependencias de Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# Dar permisos al storage y bootstrap
-RUN chmod -R 775 storage bootstrap/cache
+# Permisos de Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Copiar config de Nginx
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+# Copiar configuración de Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Exponer puerto
-EXPOSE 8080
+# Exponer el puerto dinámico que da Railway
+EXPOSE $PORT
 
-# Arrancar supervisord (que maneja Nginx + PHP-FPM)
-CMD ["php-fpm"]
+# Iniciar Nginx y PHP-FPM
+CMD service nginx start && php-fpm
