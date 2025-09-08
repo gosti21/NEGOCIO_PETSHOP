@@ -33,3 +33,4 @@ php artisan view:cache
 
 # Mantener el servidor en ejecución en el puerto que asigna Railway
 php -S 0.0.0.0:$PORT -t public
+
