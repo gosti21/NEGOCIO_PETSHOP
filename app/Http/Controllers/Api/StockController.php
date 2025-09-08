@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Variant;
 
 class StockController extends Controller
 {
@@ -17,6 +19,14 @@ class StockController extends Controller
                 'id' => $product->id,
                 'name' => $product->name,
                 'total_stock' => $product->variants->sum('stock'), // suma stock de todas las variantes
+                'variants' => $product->variants->map(function ($variant) {
+                    return [
+                        'id' => $variant->id,
+                        'sku' => $variant->sku,
+                        'stock' => $variant->stock,
+                        'price' => $variant->price,
+                    ];
+                }),
             ];
         });
 
@@ -47,6 +57,7 @@ class StockController extends Controller
                         'product_id' => $product->id,
                         'product_name' => $product->name,
                         'variant_id' => $variant->id,
+                        'sku' => $variant->sku,
                         'stock' => $variant->stock,
                     ];
                 }
@@ -54,5 +65,21 @@ class StockController extends Controller
         }
 
         return response()->json($lowStock);
+    }
+
+    // Actualizar stock de una variante específica
+    public function update(Request $request, $variant_id)
+    {
+        $request->validate([
+            'stock' => 'required|integer|min:0'
+        ]);
+
+        $variant = Variant::findOrFail($variant_id);
+        $variant->update(['stock' => $request->stock]);
+
+        return response()->json([
+            'message' => 'Stock actualizado',
+            'variant' => $variant
+        ]);
     }
 }

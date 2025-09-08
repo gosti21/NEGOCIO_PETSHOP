@@ -31,4 +31,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/stock', [StockController::class, 'index']);
     Route::post('/stock/reset', [StockController::class, 'reset']);
     Route::get('/stock/alert', [StockController::class, 'alert']);
+    Route::put('/stock/{id}', [StockController::class, 'update']); // nueva ruta
 });
