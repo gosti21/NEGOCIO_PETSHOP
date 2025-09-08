@@ -18,7 +18,6 @@ Route::get('/products', [ProductController::class, 'index']);
 
 Route::post('/sort/covers', [SortController::class, 'orderCover'])->name('api.sort.orderCover');
 
-Route::get('/products', [ProductApiController::class, 'index']);
 Route::get('/products/{id}', [ProductApiController::class, 'show']);
 
 Route::apiResource('families', FamilyController::class);
