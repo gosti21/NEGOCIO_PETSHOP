@@ -1,23 +1,32 @@
 #!/bin/sh
 set -e
 
-# Permitir Composer como root
+# Permitir plugins de Composer al correr como root en Railway
 export COMPOSER_ALLOW_SUPERUSER=1
 
-# Instalar dependencias sin dev
+# Instalar dependencias optimizadas (sin dev)
 composer install --no-dev --optimize-autoloader
 
-# Migrar base de datos
+# Ejecutar migraciones forzadas
 php artisan migrate --force
 
-# Storage link
+# Enlace de storage (ignora error si ya existe)
 php artisan storage:link || true
 
-# Generar cachés optimizadas
+# Generar cachés para producción
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# 🚨 Usar PHP-FPM o Laravel Sail en producción
-# Para Railway, puedes usar:
-php artisan serve --host=0.0.0.0 --port=$PORT
+
+
+# Limpiar cachés previas
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+
+
+# Mantener el servidor en ejecución en el puerto que asigna Railway
+php -S 0.0.0.0:$PORT -t public
+
