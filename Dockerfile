@@ -1,26 +1,30 @@
-FROM php:8.2-apache
-
-# Establecer directorio de trabajo
-WORKDIR /var/www/html
-
-# Copiar proyecto
-COPY . .
+FROM php:8.2-fpm
 
 # Instalar dependencias del sistema y extensiones PHP necesarias
 RUN apt-get update && apt-get install -y \
-    zip unzip git libpng-dev libonig-dev libxml2-dev libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
+    unzip \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Habilitar mod_rewrite de Apache
-RUN a2enmod rewrite
+# Instalar Composer
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# Configurar permisos de Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Copiar app
+WORKDIR /var/www
+COPY . .
 
-# Configuración de Apache para Laravel
-RUN echo "<Directory /var/www/html/public>\n    AllowOverride All\n    Require all granted\n</Directory>" > /etc/apache2/conf-available/laravel.conf \
-    && a2enconf laravel
+# Instalar dependencias de Laravel
+RUN composer install --no-dev --optimize-autoloader
 
-# Ejecutar migraciones y arrancar Apache
-CMD php artisan migrate --force && apache2-foreground
+# Permisos para Laravel
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
+# Copiar config de Nginx
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+
+CMD php-fpm
