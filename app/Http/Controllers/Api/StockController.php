@@ -3,34 +3,56 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Product;
 
 class StockController extends Controller
 {
-    // Ver stock de todos los productos
+    // Ver stock total por producto
     public function index()
     {
-        return Product::select('id', 'name', 'stock')->get();
+        $products = Product::with('variants')->get();
+
+        $data = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'total_stock' => $product->variants->sum('stock'), // suma stock de todas las variantes
+            ];
+        });
+
+        return response()->json($data);
     }
 
-    // Reiniciar stock (ejemplo: todos a 100)
+    // Reiniciar stock de todas las variantes
     public function reset()
     {
-        Product::query()->update(['stock' => 100]);
+        foreach (Product::with('variants')->get() as $product) {
+            foreach ($product->variants as $variant) {
+                $variant->update(['stock' => 100]); // ejemplo: reinicia a 100
+            }
+        }
 
-        return response()->json([
-            'message' => 'Stock reiniciado a 100 para todos los productos.'
-        ]);
+        return response()->json(['message' => 'Stock reiniciado a 100 para todas las variantes']);
     }
 
-    // Alerta de stock bajo (ej: menor a 5)
+    // Alertas de stock bajo (≤5)
     public function alert()
     {
-        $lowStock = Product::where('stock', '<', 5)->get();
+        $lowStock = [];
 
-        return response()->json([
-            'alerta' => $lowStock
-        ]);
+        foreach (Product::with('variants')->get() as $product) {
+            foreach ($product->variants as $variant) {
+                if ($variant->stock <= 5) {
+                    $lowStock[] = [
+                        'product_id' => $product->id,
+                        'product_name' => $product->name,
+                        'variant_id' => $variant->id,
+                        'stock' => $variant->stock,
+                    ];
+                }
+            }
+        }
+
+        return response()->json($lowStock);
     }
 }
