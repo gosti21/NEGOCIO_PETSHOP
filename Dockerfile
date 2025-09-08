@@ -32,7 +32,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Exponer un puerto (Railway lo reemplaza, pero usa 8080 por convención)
+# Exponer un puerto (Railway lo reemplaza con $PORT)
 EXPOSE 8080
 
 # Iniciar con script
