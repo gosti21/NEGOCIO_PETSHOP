@@ -20,3 +20,14 @@ php artisan view:cache
 
 # Mantener el servidor en ejecución en el puerto que asigna Railway
 php artisan serve --host=0.0.0.0 --port=$PORT
+
+# Limpiar cachés previas
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+
+# Generar cachés optimizadas
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
