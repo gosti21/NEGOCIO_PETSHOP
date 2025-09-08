@@ -14,16 +14,12 @@ use App\Http\Controllers\Admin\VariantController;
 use Illuminate\Support\Facades\Route;
 
 // 🔹 Redirigir /admin a /admin/dashboard
-Route::get('/', function() {
-    return redirect()->route('admin.dashboard');
-});
+Route::get('/', fn() => redirect()->route('admin.dashboard'));
 
 // 🔹 Dashboard real
-Route::get('/dashboard', function() {
-    return view('admin.dashboard');
-})->name('dashboard');
+Route::get('/dashboard', fn() => view('admin.dashboard'))->name('dashboard');
 
-// 🔹 Rutas de usuario y opciones
+// 🔹 Usuarios y opciones
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::get('/options', [OptionController::class, 'index'])->name('options.index');
 
@@ -40,7 +36,7 @@ Route::get('/products/{product}/variants', [VariantController::class, 'create'])
 Route::get('/products/{product}/variants/{variant}', [VariantController::class, 'edit'])
     ->name('variants.edit')
     ->scopeBindings();
-Route::match(['put', 'patch'], '/products/{product}/variants/{variant}', [VariantController::class, 'update'])
+Route::match(['put','patch'], '/products/{product}/variants/{variant}', [VariantController::class, 'update'])
     ->name('variants.update')
     ->scopeBindings();
 
