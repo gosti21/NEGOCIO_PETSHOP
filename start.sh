@@ -1,13 +1,10 @@
 #!/bin/sh
 
-# Reemplaza el placeholder en nginx.conf por el valor real del PORT de Railway
+# Reemplazar placeholder $PORT en nginx.conf con el valor real
 sed -i "s/\$PORT/${PORT}/g" /etc/nginx/conf.d/default.conf
 
-# Migraciones en producción (opcional)
-php artisan migrate --force
-
-# Arrancar PHP-FPM en background
+# Iniciar PHP-FPM en background
 php-fpm -D
 
-# Arrancar Nginx en foreground (mantiene el contenedor vivo)
-nginx -g 'daemon off;'
+# Iniciar Nginx en foreground
+nginx -g "daemon off;"

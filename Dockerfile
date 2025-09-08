@@ -4,6 +4,7 @@ FROM php:8.2-fpm
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
+    nginx \
     libpq-dev \
     libzip-dev \
     zip \
@@ -27,8 +28,12 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # Copiar configuración de Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Exponer el puerto dinámico que da Railway
-EXPOSE $PORT
+# Copiar script de inicio
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
-# Iniciar Nginx y PHP-FPM
-CMD service nginx start && php-fpm
+# Exponer un puerto (Railway lo reemplaza, pero usa 8080 por convención)
+EXPOSE 8080
+
+# Iniciar con script
+CMD ["sh", "/start.sh"]
