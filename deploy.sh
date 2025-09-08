@@ -1,19 +1,22 @@
 #!/bin/sh
 set -e
 
-# Instalar dependencias
+# Permitir plugins de Composer al correr como root en Railway
+export COMPOSER_ALLOW_SUPERUSER=1
+
+# Instalar dependencias optimizadas (sin dev)
 composer install --no-dev --optimize-autoloader
 
-# Migraciones
+# Ejecutar migraciones forzadas
 php artisan migrate --force
 
-# Enlace de storage
+# Enlace de storage (ignora error si ya existe)
 php artisan storage:link || true
 
-# Cachés para producción (opcional, recomendado)
+# Generar cachés para producción
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Mantener el servidor en ejecución
+# Mantener el servidor en ejecución en el puerto que asigna Railway
 php artisan serve --host=0.0.0.0 --port=$PORT
