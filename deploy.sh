@@ -3,27 +3,29 @@ set -e
 
 export COMPOSER_ALLOW_SUPERUSER=1
 
-echo "📦 Instalando dependencias PHP..."
+# Instalar dependencias PHP
 composer install --no-dev --optimize-autoloader
 
-echo "🔧 Ejecutando migraciones..."
+# Migraciones y link de storage
 php artisan migrate --force || echo "⚠️ DB no disponible aún, migraciones omitidas"
-
-echo "🔗 Creando link de storage..."
 php artisan storage:link || true
 
-echo "🗂️ Cacheando configuración y vistas..."
+# Cachear configuración y rutas
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+
 php artisan config:cache
+php artisan route:cache
 php artisan view:cache
 
-# Opcional: build de frontend si existe package.json
+# Opcional: frontend
 if [ -f package.json ]; then
-    echo "📦 Instalando dependencias Node..."
     npm install
-    echo "🏗️ Construyendo frontend..."
     npm run build
 fi
 
-echo "🚀 Iniciando PHP-FPM y Nginx..."
+# Iniciar servicios
 php-fpm -D
 nginx -g "daemon off;"
