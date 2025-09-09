@@ -30,6 +30,9 @@ COPY . .
 # Instalar dependencias de Laravel
 RUN composer install --no-dev --optimize-autoloader
 
+# Configurar PHP-FPM para escuchar en TCP 9000
+RUN sed -i 's|^listen = .*|listen = 127.0.0.1:9000|' /usr/local/etc/php-fpm.d/www.conf
+
 # Copiar deploy.sh y darle permisos
 COPY deploy.sh /deploy.sh
 RUN chmod +x /deploy.sh
