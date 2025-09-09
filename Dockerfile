@@ -9,29 +9,39 @@ RUN npm run build
 # Etapa final PHP
 FROM php:8.2-fpm
 
-# Dependencias del sistema + extensiones PHP
+# Instalar dependencias del sistema + extensiones PHP
 RUN apt-get update && apt-get install -y \
     unzip git curl libpng-dev libonig-dev libxml2-dev zip nginx \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Composer
+# Instalar Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 # Crear directorio de trabajo
 WORKDIR /var/www
+
+# Copiar assets compilados de Node/Vite
 COPY --from=node-build /var/www/public/build public/build
+
+# Copiar todo el proyecto
 COPY . .
 
-# Deploy (instalación, Livewire, caches)
+# Instalar dependencias de Laravel en la imagen final
+RUN composer install --no-dev --optimize-autoloader
+
+# Deploy (Livewire, storage, caches)
 COPY deploy.sh /deploy.sh
 RUN chmod +x /deploy.sh
 
-# Nginx config
+# Copiar configuración de Nginx
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 # Permisos Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
+# Exponer el puerto
 EXPOSE 80
+
+# Comando para iniciar la app (PHP-FPM + Nginx via deploy.sh)
 CMD ["/deploy.sh"]
