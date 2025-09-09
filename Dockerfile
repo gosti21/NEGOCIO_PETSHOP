@@ -21,12 +21,12 @@ COPY . .
 # Copiar plantilla de Nginx
 COPY ./nginx/default.conf.template /etc/nginx/conf.d/default.conf.template
 
-# Copiar entrypoint
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Copiar deploy.sh y darle permisos
+COPY ./deploy.sh /deploy.sh
+RUN chmod +x /deploy.sh
 
-# Exponer puerto (Railway normalmente redirige a 80)
+# Exponer puerto 80
 EXPOSE 80
 
-# Usar entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
+# Ejecutar deploy.sh
+ENTRYPOINT ["/deploy.sh"]
