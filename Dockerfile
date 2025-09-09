@@ -21,5 +21,5 @@ RUN chmod +x /var/www/deploy.sh
 
 EXPOSE 80
 
-# Ejecutar deploy.sh al iniciar
+# Ejecutar deploy.sh al iniciar el container
 CMD ["/var/www/deploy.sh"]
