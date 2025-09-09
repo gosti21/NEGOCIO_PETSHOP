@@ -1,22 +1,25 @@
 #!/bin/sh
 set -e
 
-# Permitir plugins de Composer al correr como root en Railway
 export COMPOSER_ALLOW_SUPERUSER=1
 
-# Instalar dependencias optimizadas (sin dev)
+# Instalar dependencias PHP
 composer install --no-dev --optimize-autoloader
 
-# Ejecutar migraciones forzadas
+# Migraciones
 php artisan migrate --force
 
+# Livewire
+php artisan livewire:publish --assets
+
+# NPM / Vite
 npm install
 npm run build
 
-
-# Enlace de storage (ignora error si ya existe)
+# Storage
 php artisan storage:link || true
 
-
-# Mantener el servidor en ejecución en el puerto que asigna Railway
-php -S 0.0.0.0:$PORT -t public
+# Cachés de Laravel (opcional, para producción)
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
