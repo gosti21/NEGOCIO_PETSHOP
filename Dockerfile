@@ -1,29 +1,43 @@
-FROM php:8.2-apache
+# Etapa de build (Node/Vite)
+FROM node:20 AS node-build
+WORKDIR /var/www
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
-# Instalar dependencias necesarias
+# Etapa final (PHP)
+FROM php:8.2-fpm
+
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    zip unzip git libpng-dev libonig-dev libxml2-dev libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
+    git unzip nginx libzip-dev zip libpng-dev libonig-dev \
+    && docker-php-ext-install pdo_mysql zip bcmath gd \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Habilitar mod_rewrite en Apache
-RUN a2enmod rewrite
+# Instalar Composer
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# Configuración de Apache para Laravel
-RUN echo "<Directory /var/www/html/public>\n\
-    AllowOverride All\n\
-    Require all granted\n\
-</Directory>" > /etc/apache2/conf-available/laravel.conf \
-    && a2enconf laravel
+WORKDIR /var/www
 
-# Copiar proyecto
-WORKDIR /var/www/html
+# Copiar proyecto y assets de Node
+COPY --from=node-build /var/www/public/build public/build
+COPY --from=node-build /var/www/package*.json ./
 COPY . .
 
-# Instalar Composer (si no lo tienes ya en vendor)
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --optimize-autoloader
+# Deploy script
+COPY deploy.sh /deploy.sh
+RUN chmod +x /deploy.sh
+
+# Permisos Laravel
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Configuración Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Exponer puerto
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+# Iniciar PHP-FPM y Nginx
+CMD ["sh", "/deploy.sh"]
