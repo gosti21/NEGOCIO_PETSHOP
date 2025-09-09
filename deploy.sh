@@ -20,19 +20,8 @@ php artisan view:cache
 
 echo "✅ Pre-deploy terminado. ⚠️ Migraciones deben correr solo después de que DB esté lista."
 
-echo "🚀 Iniciando PHP-FPM..."
-php-fpm -F &
+echo "🚀 Iniciando PHP-FPM en segundo plano..."
+php-fpm -D
 
-# Esperar a que PHP-FPM esté listo
-timeout=30
-while ! nc -z 127.0.0.1 9000; do
-  sleep 1
-  timeout=$((timeout-1))
-  if [ $timeout -le 0 ]; then
-    echo "❌ PHP-FPM no arrancó a tiempo"
-    exit 1
-  fi
-done
-
-echo "🚀 PHP-FPM listo, arrancando Nginx..."
+echo "🚀 Iniciando Nginx en foreground..."
 nginx -g 'daemon off;'
