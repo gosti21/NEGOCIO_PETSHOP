@@ -20,5 +20,6 @@ php artisan config:cache
 php artisan route:cache || echo "⚠️ Rutas duplicadas, revisar"
 php artisan view:cache
 
-# Mantener el contenedor corriendo con PHP-FPM
-php-fpm
+# Iniciar PHP-FPM + Nginx
+php-fpm8.2 -F &
+nginx -g "daemon off;"
