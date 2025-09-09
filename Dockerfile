@@ -30,16 +30,17 @@ COPY . .
 # Instalar dependencias de Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# Deploy
+# Copiar deploy.sh y darle permisos
 COPY deploy.sh /deploy.sh
 RUN chmod +x /deploy.sh
 
-# Configuración de Nginx
+# Copiar configuración de Nginx
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 # Permisos Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
+# Exponer el puerto
 EXPOSE 80
 
 # Ejecutar PHP-FPM + Nginx
