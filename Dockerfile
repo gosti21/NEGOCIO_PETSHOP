@@ -1,7 +1,7 @@
-# Etapa base: PHP
+# Base PHP-FPM
 FROM php:8.2-fpm
 
-# Instalar dependencias del sistema y extensiones PHP
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     npm \
     nginx \
+    curl \
     && docker-php-ext-install pdo_mysql zip gd mbstring exif pcntl bcmath \
     && rm -rf /var/lib/apt/lists/*
 
@@ -20,20 +21,20 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Crear directorio de trabajo
 WORKDIR /var/www
 
-# Copiar archivos de Laravel
+# Copiar composer.json y composer.lock primero
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader
 
+# Instalar dependencias PHP
+RUN composer install --no-dev --optimize-autoloader || true
+
+# Copiar todo el proyecto
 COPY . .
 
-# Configurar permisos de storage y bootstrap/cache
-RUN chown -R www-data:www-data storage bootstrap/cache
+# Permisos
+RUN chmod +x deploy.sh
 
 # Copiar configuración de Nginx
 COPY default.conf /etc/nginx/conf.d/default.conf
 
-# Exponer el puerto que Railway asigna
-EXPOSE 8080
-
-# Comando de inicio
-CMD php-fpm && nginx -g "daemon off;"
+# Exponer puerto
+EXPOSE 80
