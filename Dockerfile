@@ -9,7 +9,9 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+    nginx \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar Node.js y npm
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
@@ -18,12 +20,13 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 # Instalar Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# Copiar app
+# Copiar aplicación
 WORKDIR /var/www
 COPY . .
 
-# Instalar dependencias de Laravel
-RUN composer install --no-dev --optimize-autoloader
+# Ejecutar script de deploy
+COPY deploy.sh /deploy.sh
+RUN chmod +x /deploy.sh && /deploy.sh
 
 # Permisos para Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
@@ -31,4 +34,8 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 # Copiar config de Nginx
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
-CMD php-fpm
+# Exponer puerto HTTP
+EXPOSE 80
+
+# Comando para iniciar PHP-FPM y Nginx
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
