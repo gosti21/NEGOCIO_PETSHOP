@@ -27,21 +27,20 @@ COPY --from=node-build /var/www/public/build public/build
 # Copiar todo el proyecto
 COPY . .
 
-# Instalar dependencias de Laravel en la imagen final
+# Instalar dependencias de Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# Deploy (Livewire, storage, caches)
+# Deploy
 COPY deploy.sh /deploy.sh
 RUN chmod +x /deploy.sh
 
-# Copiar configuración de Nginx
+# Configuración de Nginx
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 # Permisos Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Exponer el puerto
 EXPOSE 80
 
-# Comando para iniciar la app (PHP-FPM + Nginx via deploy.sh)
+# Ejecutar PHP-FPM + Nginx
 CMD ["/deploy.sh"]

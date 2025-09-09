@@ -9,17 +9,17 @@ composer install --no-dev --optimize-autoloader
 # Publicar Livewire assets
 php artisan livewire:publish --assets || true
 
-# Storage
+# Crear link de storage
 php artisan storage:link || true
 
-# Cachés Laravel
+# Limpiar cachés y compilar vistas
 php artisan config:clear
-php artisan route:clear
 php artisan view:clear
 php artisan config:cache
-php artisan route:cache || echo "⚠️ Rutas duplicadas, revisar"
 php artisan view:cache
 
-# Iniciar PHP-FPM y Nginx en foreground
+# Iniciar PHP-FPM en foreground
 php-fpm -F &
+
+# Iniciar Nginx en foreground
 nginx -g "daemon off;"
