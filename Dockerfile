@@ -1,10 +1,10 @@
 # Imagen base PHP-FPM
 FROM php:8.2-fpm
 
-# Instalar dependencias del sistema y extensiones PHP
+# Instalar dependencias del sistema y extensiones PHP necesarias
 RUN apt-get update && apt-get install -y \
     git unzip libzip-dev libpng-dev libonig-dev libxml2-dev \
-    npm curl supervisor \
+    npm curl nginx \
     && docker-php-ext-install pdo_mysql zip gd mbstring exif pcntl bcmath \
     && rm -rf /var/lib/apt/lists/*
 
@@ -24,7 +24,7 @@ COPY . .
 # Crear enlace de storage si no existe
 RUN php artisan storage:link || true
 
-# Configurar permisos (opcional)
+# Configurar permisos
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
@@ -34,7 +34,5 @@ COPY default.conf /etc/nginx/conf.d/default.conf
 # Exponer puerto HTTP
 EXPOSE 80
 
-# Usar supervisord para correr PHP-FPM y Nginx juntos
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-CMD ["supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Arrancar PHP-FPM y Nginx juntos
+CMD ["sh", "-c", "php-fpm & nginx -g 'daemon off;'"]
