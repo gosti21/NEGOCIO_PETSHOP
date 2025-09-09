@@ -22,5 +22,5 @@ if [ -f package.json ]; then
     npm run build
 fi
 
-echo "Arrancando PHP-FPM y Nginx..."
-php-fpm & nginx -g "daemon off;"
+php-fpm -R -F -O &
+nginx -g "daemon off;"
