@@ -3,7 +3,7 @@ set -e
 
 export COMPOSER_ALLOW_SUPERUSER=1
 
-# Composer
+# Instalar dependencias Laravel
 composer install --no-dev --optimize-autoloader
 
 # Publicar Livewire assets
@@ -20,6 +20,6 @@ php artisan config:cache
 php artisan route:cache || echo "⚠️ Rutas duplicadas, revisar"
 php artisan view:cache
 
-# Iniciar PHP-FPM + Nginx
-php-fpm8.2 -F &
+# Iniciar PHP-FPM y Nginx en foreground
+php-fpm -F &
 nginx -g "daemon off;"
