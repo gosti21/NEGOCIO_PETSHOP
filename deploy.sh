@@ -3,7 +3,7 @@ set -e
 
 export COMPOSER_ALLOW_SUPERUSER=1
 
-# Instalar dependencias PHP (ya está Composer en la imagen)
+# Instalar dependencias PHP
 composer install --no-dev --optimize-autoloader
 
 # Migraciones (opcional en producción)
@@ -26,5 +26,5 @@ php artisan config:cache
 php artisan view:cache
 
 # Iniciar servicios
-php-fpm -D
+php-fpm -F -R      # F = foreground, R = permitir TCP para Nginx
 nginx -g "daemon off;"
