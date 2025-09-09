@@ -23,3 +23,4 @@ php artisan storage:link || true
 php artisan config:cache
 # php artisan route:cache  # Comentado temporalmente
 php artisan view:cache
+php artisan route:cache
