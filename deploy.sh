@@ -24,3 +24,4 @@ fi
 
 # Arrancar PHP-FPM y Nginx
 php-fpm & nginx -g "daemon off;"
+
