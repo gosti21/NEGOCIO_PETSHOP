@@ -14,18 +14,17 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Establecer directorio de trabajo
 WORKDIR /var/www
 
-# Copiar archivos de Composer y ejecutar instalación
+# Copiar solo archivos de Composer y ejecutar instalación sin scripts
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # Copiar todo el proyecto
 COPY . .
 
-# Crear enlace de storage si no existe
-RUN php artisan storage:link || true
-
-# Limpiar y cachear Laravel
-RUN php artisan config:clear \
+# Ejecutar scripts de Laravel manualmente
+RUN php artisan package:discover \
+    && php artisan storage:link || true \
+    && php artisan config:clear \
     && php artisan cache:clear \
     && php artisan route:clear \
     && php artisan view:clear \
