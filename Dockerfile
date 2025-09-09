@@ -1,4 +1,4 @@
-# Etapa build para Node (Vite)
+# Etapa build de Node/Vite
 FROM node:20 AS node-build
 WORKDIR /var/www
 COPY package*.json ./
@@ -6,7 +6,7 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Etapa final PHP
+# Etapa final PHP + Nginx
 FROM php:8.2-fpm
 
 # Instalar dependencias del sistema + extensiones PHP
@@ -38,12 +38,12 @@ COPY deploy.sh /deploy.sh
 RUN chmod +x /deploy.sh
 
 # Copiar configuración de Nginx
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Permisos Laravel
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Exponer el puerto
+# Exponer el puerto HTTP
 EXPOSE 80
 
 # Ejecutar PHP-FPM + Nginx

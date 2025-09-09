@@ -3,23 +3,27 @@ set -e
 
 export COMPOSER_ALLOW_SUPERUSER=1
 
-# Instalar dependencias Laravel
+echo "Instalando dependencias Laravel..."
 composer install --no-dev --optimize-autoloader
 
-# Publicar Livewire assets
+echo "Publicando assets Livewire..."
 php artisan livewire:publish --assets || true
 
-# Crear link de storage
+echo "Creando link de storage..."
 php artisan storage:link || true
 
-# Limpiar cachés y compilar vistas
+echo "Limpiando cachés..."
 php artisan config:clear
+php artisan route:clear
 php artisan view:clear
+
+echo "Cacheando config y vistas..."
 php artisan config:cache
+php artisan route:cache
 php artisan view:cache
 
-# Iniciar PHP-FPM en foreground escuchando TCP 9000
+echo "Iniciando PHP-FPM..."
 php-fpm -F &
 
-# Iniciar Nginx en foreground
+echo "Iniciando Nginx..."
 nginx -g "daemon off;"
