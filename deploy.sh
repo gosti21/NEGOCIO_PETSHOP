@@ -3,23 +3,19 @@ set -e
 
 export COMPOSER_ALLOW_SUPERUSER=1
 
-echo "Instalando dependencias PHP..."
+echo "✅ Instalando dependencias PHP..."
 composer install --no-dev --optimize-autoloader || true
 
-echo "Migraciones..."
-php artisan migrate --force || echo "⚠️ DB no disponible aún"
-
-echo "Storage link..."
+echo "🔗 Creando enlace de storage..."
 php artisan storage:link || true
 
-echo "Cacheando..."
+echo "⚡ Limpiando cachés..."
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+echo "⚡ Cacheando configuración y vistas..."
 php artisan config:cache
-php artisan route:cache
 php artisan view:cache
 
-if [ -f package.json ]; then
-    npm install
-    npm run build
-fi
-
-echo "✅ Pre-deploy completo"
+echo "✅ Pre-deploy terminado. ⚠️ Migraciones deben correr solo después de que DB esté lista."
