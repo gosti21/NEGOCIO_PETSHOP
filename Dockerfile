@@ -1,9 +1,11 @@
 FROM php:8.2-fpm
 
 # Instalar dependencias necesarias y extensiones PHP
-RUN apt-get update && apt-get install -y nginx git unzip libzip-dev libpng-dev libonig-dev libxml2-dev curl netcat \
+RUN apt-get update && apt-get install -y \
+    nginx git unzip libzip-dev libpng-dev libonig-dev libxml2-dev curl netcat-openbsd \
     && docker-php-ext-install pdo_mysql zip gd mbstring exif pcntl bcmath \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
