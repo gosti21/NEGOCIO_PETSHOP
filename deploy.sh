@@ -10,6 +10,8 @@ php artisan storage:link || true
 php artisan config:cache
 php artisan view:cache
 
-# Iniciar PHP-FPM y Nginx en foreground
-php-fpm -F
+# Iniciar PHP-FPM en background
+php-fpm -D
+
+# Iniciar Nginx en foreground
 nginx -g "daemon off;"

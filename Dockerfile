@@ -1,52 +1,30 @@
-# Etapa Node (build de Vite)
-FROM node:20 AS node-build
-WORKDIR /var/www
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build  # Construye assets de Vite
-
-# Etapa PHP + Nginx
+# Etapa base PHP
 FROM php:8.2-fpm
-WORKDIR /var/www
 
-# Instalar dependencias del sistema + extensiones PHP + Nginx
+# Instalar dependencias del sistema y extensiones PHP necesarias
 RUN apt-get update && apt-get install -y \
+    nginx \
     git \
     unzip \
-    curl \
+    libzip-dev \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
-    libzip-dev \
-    zip \
-    nginx \
-    && docker-php-ext-install pdo_mysql bcmath gd zip \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && docker-php-ext-install pdo_mysql zip gd mbstring exif pcntl bcmath
 
-# Instalar Composer
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
-    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
-    && php -r "unlink('composer-setup.php');"
-
-# Copiar assets de Node
-COPY --from=node-build /var/www/public/build public/build
-
-# Copiar proyecto Laravel
+# Copiar código
+WORKDIR /var/www
 COPY . .
 
-# Instalar dependencias PHP y permisos
-RUN composer install --no-dev --optimize-autoloader \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+# Copiar plantilla de nginx
+COPY ./nginx/default.conf.template /etc/nginx/conf.d/default.conf.template
 
-# Copiar Nginx y script de deploy
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY deploy.sh /deploy.sh
-RUN chmod +x /deploy.sh
+# Copiar entrypoint
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-# Exponer puerto HTTP
+# Exponer puerto (Railway asigna dinámicamente)
 EXPOSE 80
 
-# Comando de inicio
-CMD ["sh", "/deploy.sh"]
+# Ejecutar entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
