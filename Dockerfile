@@ -1,39 +1,29 @@
-FROM php:8.2-fpm
+FROM php:8.2-apache
 
-# Instalar dependencias del sistema
+# Instalar dependencias necesarias
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    nginx \
-    libpq-dev \
-    libzip-dev \
-    zip \
-    && docker-php-ext-install pdo_mysql zip bcmath
+    zip unzip git libpng-dev libonig-dev libxml2-dev libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Instalar Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Habilitar mod_rewrite en Apache
+RUN a2enmod rewrite
 
-WORKDIR /var/www/html
+# Configuración de Apache para Laravel
+RUN echo "<Directory /var/www/html/public>\n\
+    AllowOverride All\n\
+    Require all granted\n\
+</Directory>" > /etc/apache2/conf-available/laravel.conf \
+    && a2enconf laravel
 
 # Copiar proyecto
+WORKDIR /var/www/html
 COPY . .
 
-# Instalar dependencias de Laravel
+# Instalar Composer (si no lo tienes ya en vendor)
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
-# Permisos de Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Exponer puerto
+EXPOSE 80
 
-# Copiar configuración de Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copiar script de inicio
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-
-# Exponer un puerto (Railway lo reemplaza, pero usa 8080 por convención)
-EXPOSE 8080
-
-# Iniciar con script
-CMD ["sh", "/start.sh"]
+CMD ["apache2-foreground"]
