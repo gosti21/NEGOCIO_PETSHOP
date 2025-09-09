@@ -26,7 +26,5 @@ if [ -f package.json ]; then
     npm run build
 fi
 
-php-fpm -D
-
-# Arranca Nginx en primer plano
+php-fpm
 nginx -g "daemon off;"
