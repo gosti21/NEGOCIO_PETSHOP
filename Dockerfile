@@ -3,8 +3,7 @@ FROM php:8.2-fpm
 
 # Instalar dependencias del sistema y extensiones PHP necesarias
 RUN apt-get update && apt-get install -y \
-    git unzip libzip-dev libpng-dev libonig-dev libxml2-dev \
-    curl nginx netcat-openbsd \
+    git unzip libzip-dev libpng-dev libonig-dev libxml2-dev curl \
     && docker-php-ext-install pdo_mysql zip gd mbstring exif pcntl bcmath \
     && rm -rf /var/lib/apt/lists/*
 
@@ -28,11 +27,8 @@ RUN php artisan storage:link || true
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
-# Copiar configuración de Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Exponer puerto HTTP (Railway usa esto)
+EXPOSE 8080
 
-# Exponer puerto HTTP
-EXPOSE 80
-
-# Arrancar PHP-FPM y Nginx juntos
-CMD ["sh", "-c", "php-fpm & nginx -g 'daemon off;'"]
+# Start command: solo PHP-FPM en foreground
+CMD ["php-fpm", "-F"]
