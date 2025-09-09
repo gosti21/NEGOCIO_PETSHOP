@@ -4,16 +4,25 @@ WORKDIR /var/www
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN npm run build
+RUN npm run build  # Construye assets de Vite
 
 # Etapa PHP
 FROM php:8.2-fpm
 WORKDIR /var/www
 
-# Instalar dependencias del sistema
+# Instalar dependencias del sistema + extensiones PHP
 RUN apt-get update && apt-get install -y \
-    git unzip curl libpng-dev libonig-dev libxml2-dev zip nginx \
-    && docker-php-ext-install pdo_mysql bcmath gd zip
+    git \
+    unzip \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip \
+    nginx \
+    && docker-php-ext-install pdo_mysql bcmath gd zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar Composer directamente en PHP
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
@@ -26,9 +35,10 @@ COPY --from=node-build /var/www/public/build public/build
 # Copiar proyecto Laravel
 COPY . .
 
-# Ejecutar Composer + permisos Laravel
+# Instalar dependencias PHP y asignar permisos
 RUN composer install --no-dev --optimize-autoloader \
-    && chown -R www-data:www-data storage bootstrap/cache
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
 # Configuración Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
