@@ -22,5 +22,4 @@ if [ -f package.json ]; then
     npm run build
 fi
 
-php-fpm -R -F -O &
-nginx -g "daemon off;"
+echo "✅ Pre-deploy completo"

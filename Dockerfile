@@ -1,25 +1,40 @@
+# Imagen base PHP-FPM
 FROM php:8.2-fpm
 
+# Instalar dependencias del sistema y extensiones PHP
 RUN apt-get update && apt-get install -y \
     git unzip libzip-dev libpng-dev libonig-dev libxml2-dev \
-    npm nginx curl \
+    npm curl supervisor \
     && docker-php-ext-install pdo_mysql zip gd mbstring exif pcntl bcmath \
     && rm -rf /var/lib/apt/lists/*
 
+# Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Directorio de trabajo
 WORKDIR /var/www
 
+# Copiar archivos de Composer e instalar dependencias sin scripts
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
+# Copiar todo el proyecto
 COPY . .
 
-COPY default.conf /etc/nginx/conf.d/default.conf
-COPY deploy.sh /var/www/deploy.sh
-RUN chmod +x /var/www/deploy.sh
+# Crear enlace de storage si no existe
+RUN php artisan storage:link || true
 
+# Configurar permisos (opcional)
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 755 /var/www/storage /var/www/bootstrap/cache
+
+# Copiar configuración de Nginx
+COPY default.conf /etc/nginx/conf.d/default.conf
+
+# Exponer puerto HTTP
 EXPOSE 80
 
-# Ejecutar deploy.sh al iniciar el container
-CMD ["/var/www/deploy.sh"]
+# Usar supervisord para correr PHP-FPM y Nginx juntos
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+CMD ["supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
