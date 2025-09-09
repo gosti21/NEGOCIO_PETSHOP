@@ -21,5 +21,5 @@ php artisan storage:link || true
 
 # Cachés de Laravel (opcional, para producción)
 php artisan config:cache
-php artisan route:cache
+# php artisan route:cache  # Comentado temporalmente
 php artisan view:cache
