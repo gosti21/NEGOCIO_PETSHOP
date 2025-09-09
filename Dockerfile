@@ -28,8 +28,8 @@ RUN php artisan storage:link || true
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
-# Copiar configuración de Nginx
-COPY default.conf /etc/nginx/conf.d/default.conf
+# **Corregido**: copiar nginx.conf en lugar de default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Exponer puerto HTTP
 EXPOSE 80
