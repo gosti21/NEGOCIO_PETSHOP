@@ -26,7 +26,6 @@ Route::get('shipping', [ShippingController::class, 'index'])
     ->middleware('auth')
     ->name('shipping.index');
 
-Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('checkout/paid', [CheckoutController::class, 'paid'])->name('checkout.paid')->withoutMiddleware([ValidateCsrfToken::class]);
 
 Route::get('thanks', function () {
