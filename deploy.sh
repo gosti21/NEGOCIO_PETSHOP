@@ -10,6 +10,11 @@ composer install --no-dev --optimize-autoloader
 # Ejecutar migraciones forzadas
 php artisan migrate --force
 
+php artisan livewire:publish --assets
+npm install
+npm run build
+
+
 # Enlace de storage (ignora error si ya existe)
 php artisan storage:link || true
 
