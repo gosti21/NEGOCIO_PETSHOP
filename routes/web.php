@@ -15,7 +15,7 @@ use OpenAI\Laravel\Facades\OpenAI;
 
 
 Route::get('/', [WelcomeController::class, 'index'])->name('welcome.index');
-Route::get('families/{family}', [FamilyController::class, 'show'])->name('families.show');
+Route::get('families/{family}', [FamilyController::class, 'show'])->name('shop.families.show');
 Route::get('categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
 
 Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');

@@ -27,5 +27,5 @@ php artisan view:clear
 # Generar cachés de Laravel
 php artisan config:cache
 # Solo ejecutar route:cache si estás seguro que no hay rutas duplicadas
-php artisan route:cache || echo "⚠️ Error route:cache ignorado, revisar rutas duplicadas"
+#php artisan route:cache || echo "⚠️ Error route:cache ignorado, revisar rutas duplicadas"
 php artisan view:cache
